@@ -1,0 +1,20 @@
+image: mcr.microsoft.com/playwright:v1.62.1-jammy
+
+pipelines:
+  branches:
+    feature_RFP:
+      - step:
+          name: Run RFP Regression Tests
+          size: 2x
+          caches:
+            - node
+          script:
+            - npm ci
+            - rm -f data/session-data.json
+            - npx playwright test regression/Create_Draft_RFP.spec.js --project=chromium --workers=1
+            - npx playwright test regression --project=chromium --workers=1 --grep-invert "Creation of Draft RFP"
+          artifacts:
+            - playwright-report/**
+            - test-results/**
+            - allure-results/**
+            - data/session-data.json
