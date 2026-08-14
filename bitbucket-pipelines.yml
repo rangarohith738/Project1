@@ -1,15 +1,22 @@
 image: mcr.microsoft.com/playwright:v1.62.1-jammy
 
+definitions:
+  caches:
+    npm: ~/.npm
+
 pipelines:
   branches:
     feature_RFP:
       - step:
           name: Run RFP Regression Tests
           size: 2x
+          max-time: 120
           caches:
             - node
+            - npm
           script:
             - npm ci
+            - npx playwright install --with-deps chromium
             - rm -f data/session-data.json
             - npx playwright test regression --project=chromium --workers=1
           artifacts:
