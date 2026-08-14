@@ -11,8 +11,7 @@ pipelines:
           script:
             - npm ci
             - rm -f data/session-data.json
-            - npx playwright test regression/Create_Draft_RFP.spec.js --project=chromium --workers=1
-            - npx playwright test regression --project=chromium --workers=1 --grep-invert "Creation of Draft RFP"
+            - npx playwright test regression --project=chromium --workers=1
           artifacts:
             - playwright-report/**
             - test-results/**
