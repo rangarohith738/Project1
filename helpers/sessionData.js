@@ -15,7 +15,19 @@ function writeJson(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n');
 }
 
-/** Stable config only — strips any leftover dynamic keys. */
+/**
+ * Per-worker session file so parallel workers never share/write the same JSON.
+ * Falls back to data/session-data.json for global-setup / single-worker runs.
+ */
+function sessionFilePath() {
+  const idx = process.env.TEST_PARALLEL_INDEX;
+  if (idx !== undefined && idx !== '') {
+    return path.join(path.dirname(SESSION_DATA), `session-data-w${idx}.json`);
+  }
+  return SESSION_DATA;
+}
+
+/** Stable config only — strips any leftover dynamic keys. Read-only for runs. */
 function readStaticData() {
   const data = readJson(TEST_DATA);
   for (const key of DYNAMIC_KEYS) {
@@ -25,45 +37,49 @@ function readStaticData() {
 }
 
 function hasSession() {
-  if (!fs.existsSync(SESSION_DATA)) {
+  const filePath = sessionFilePath();
+  if (!fs.existsSync(filePath)) {
     return false;
   }
-  const session = readJson(SESSION_DATA);
+  const session = readJson(filePath);
   return Boolean(session.nameRequired);
 }
 
 /**
- * Writes key/value pairs into the session store (kept across runs).
+ * Writes key/value pairs into the worker session store (not test-data.json).
  */
 function saveSession(data) {
   ensureSessionDir();
+  const filePath = sessionFilePath();
   const next = { ...loadSession(), ...data };
-  writeJson(SESSION_DATA, next);
-  syncSessionToTestData(next);
+  writeJson(filePath, next);
   return next;
 }
 
 /**
- * Reads session values from data/session-data.json.
+ * Reads session values for this worker.
  */
 function loadSession() {
-  if (!fs.existsSync(SESSION_DATA)) {
+  const filePath = sessionFilePath();
+  if (!fs.existsSync(filePath)) {
     return {};
   }
-  return readJson(SESSION_DATA);
+  return readJson(filePath);
 }
 
 /**
- * Clears session-data.json (manual use only — not called on teardown).
+ * Clears this worker's session file (manual use only).
  */
 function clearSession() {
-  if (fs.existsSync(SESSION_DATA)) {
-    fs.unlinkSync(SESSION_DATA);
+  const filePath = sessionFilePath();
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
   }
 }
 
 /**
- * Maps session fields into test-data.json keys used by recorded scripts.
+ * No longer mirrors into test-data.json (avoids parallel write corruption).
+ * Kept for API compatibility — returns merged static + session in memory only.
  */
 function syncSessionToTestData(sessionData = loadSession()) {
   const staticData = readStaticData();
@@ -73,10 +89,10 @@ function syncSessionToTestData(sessionData = loadSession()) {
       dynamic[key] = sessionData[key];
     }
   }
-  writeJson(TEST_DATA, {
+  return {
     ...staticData,
     ...dynamic,
-  });
+  };
 }
 
 /**
@@ -84,14 +100,17 @@ function syncSessionToTestData(sessionData = loadSession()) {
  * @param {{ force?: boolean }} options
  * - force: true  → generate new values and override session (Create Draft RFP)
  * - force: false → reuse existing session if present; generate only when missing
+ *
+ * Dynamic values are applied in-memory via Object.assign(testData, session) in specs.
+ * test-data.json is never written during the run.
  */
 function prepareSession({ force = false } = {}) {
   ensureSessionDir();
+  const filePath = sessionFilePath();
 
   let sessionData;
   if (!force && hasSession()) {
     sessionData = loadSession();
-    // Backfill any new dynamic keys added after the session was created
     const generated = generateDynamicFields();
     let updated = false;
     for (const key of DYNAMIC_KEYS) {
@@ -101,27 +120,21 @@ function prepareSession({ force = false } = {}) {
       }
     }
     if (updated) {
-      writeJson(SESSION_DATA, sessionData);
+      writeJson(filePath, sessionData);
     }
   } else {
     sessionData = generateDynamicFields();
-    writeJson(SESSION_DATA, sessionData);
+    writeJson(filePath, sessionData);
   }
 
-  syncSessionToTestData(sessionData);
   return sessionData;
 }
 
 /**
- * After a run: keep data/session-data.json and mirror into test-data.json.
- * Cleared/overridden only when Create Draft RFP runs again with force: true.
+ * After a run: keep worker session file. Does not modify test-data.json.
  */
 function endSession() {
-  if (hasSession()) {
-    syncSessionToTestData();
-  } else {
-    writeJson(TEST_DATA, readStaticData());
-  }
+  // Intentionally no write to test-data.json (parallel-safe).
 }
 
 module.exports = {
@@ -132,4 +145,5 @@ module.exports = {
   prepareSession,
   endSession,
   syncSessionToTestData,
+  sessionFilePath,
 };

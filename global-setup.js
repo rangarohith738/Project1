@@ -13,6 +13,7 @@ async function globalSetup() {
       ? '[data] Reusing session → data/session-data.json'
       : '[data] New session created → data/session-data.json'
   );
+  console.log('[data] test-data.json is read-only during runs (parallel-safe)');
   console.log(`[data] nameRequired: ${session.nameRequired}`);
   console.log(`[data] firstNameRequired: ${session.firstNameRequired}`);
   console.log(`[data] lastNameRequired: ${session.lastNameRequired}`);

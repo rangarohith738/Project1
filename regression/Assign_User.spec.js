@@ -2,7 +2,7 @@ import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../helpers/sessionData');
 
-test('Assign User in RFP @regression', async ({ page }) => {
+test('Assign User in RFP @regression @set1', async ({ page }) => {
 
   const session = prepareSession({ force: true });
   Object.assign(testData, session);

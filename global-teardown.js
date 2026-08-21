@@ -6,7 +6,7 @@ const { endSession } = require('./helpers/sessionData');
  */
 async function globalTeardown() {
   endSession();
-  console.log('[data] Session kept → data/session-data.json');
+  console.log('[data] Session kept (test-data.json not modified — parallel-safe)');
 }
 
 module.exports = globalTeardown;

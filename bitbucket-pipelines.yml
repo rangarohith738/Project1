@@ -4,23 +4,46 @@ definitions:
   caches:
     npm: ~/.npm
 
+  steps:
+    - step: &rfp-test
+        size: 2x
+        max-time: 120
+        caches:
+          - npm
+        artifacts:
+          - playwright-report/**
+          - test-results/**
+          - allure-results/**
+
+# Manual only (Pipelines → Run pipeline). No branches/default = not on push.
 pipelines:
-  branches:
-    feature_RFP:
+  custom:
+    set1:
       - step:
-          name: Run RFP Regression Tests
-          size: 2x
-          max-time: 120
-          caches:
-            - node
-            - npm
+          <<: *rfp-test
+          name: Run RFP Set 1
           script:
             - npm ci
             - npx playwright install --with-deps chromium
-            - rm -f data/session-data.json
-            - npx playwright test regression --project=chromium --workers=1
-          artifacts:
-            - playwright-report/**
-            - test-results/**
-            - allure-results/**
-            - data/session-data.json
+            - rm -f data/session-data.json data/session-data-w*.json
+            - npx playwright test --project=chromium --workers=1 --grep @set1
+
+    set2:
+      - step:
+          <<: *rfp-test
+          name: Run RFP Set 2
+          script:
+            - npm ci
+            - npx playwright install --with-deps chromium
+            - rm -f data/session-data.json data/session-data-w*.json
+            - npx playwright test --project=chromium --workers=1 --grep @set2
+
+    regression:
+      - step:
+          <<: *rfp-test
+          name: Run All RFP Regression
+          script:
+            - npm ci
+            - npx playwright install --with-deps chromium
+            - rm -f data/session-data.json data/session-data-w*.json
+            - npx playwright test --project=chromium --workers=1 --grep "@set1|@set2"

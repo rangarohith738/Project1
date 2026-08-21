@@ -15,6 +15,14 @@ function generateDynamicFields() {
     substrateFaceOrFacestock: faker.commerce.productMaterial(),
     adhesiveRequired: faker.commerce.productAdjective(),
     linerRequired: faker.commerce.productMaterial(),
+    editingAncillaryItemsQuantity: String(faker.number.int({ min: 1, max: 99 })),
+    editingAncillaryItemsEstimate16Price: String(faker.number.int({ min: 1, max: 500 })),
+    editFlatCost: String(faker.number.int({ min: 1, max: 99 })),
+    costPerEach: String(faker.number.int({ min: 1, max: 500 })),
+    costPerUnitSet: String(faker.number.int({ min: 1, max: 500 })),
+    addressLine1: faker.location.streetAddress(),
+    postalCode: faker.location.zipCode('######'),
+    quantityBreak2: String(faker.number.int({ min: 10, max: 999 })),
   };
 }
 

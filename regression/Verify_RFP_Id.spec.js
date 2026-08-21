@@ -1,14 +1,14 @@
+//Verify_RFP_NUMBER_GENERATION (testcase-5)
 import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
-const { prepareSession } = require('../helpers/sessionData');
+const { prepareSession, saveSession } = require('../helpers/sessionData');
 
-test('Creation of Draft RFP @regression @set1', async ({ page }) => {
-  
+test('Verify RFP Id in RFP Queue @regression @set1', async ({ page }) => {
+
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
 
-  // 1. Go to login page
   await page.goto(testData.url);
   await page.waitForLoadState('domcontentloaded');
 
@@ -71,48 +71,6 @@ test('Creation of Draft RFP @regression @set1', async ({ page }) => {
   const continueCustomerButton = page.getByRole('button', { name: 'Continue', exact: true });
   await expect(continueCustomerButton).toBeEnabled();
   await continueCustomerButton.click();
-
-  const addContactButton = page.getByRole('button', { name: 'Add Contact', exact: true });
-  await expect(addContactButton).toBeEnabled();
-  await addContactButton.click();
-
-  const firstNameInput = page.locator('input[name="contact.first_name"][type="text"]');
-  await expect(firstNameInput).toBeVisible();
-  await expect(firstNameInput).toBeEditable();
-  await firstNameInput.fill(testData.firstNameRequired);
-
-  const lastNameInput = page.locator('input[name="contact.last_name"][type="text"]');
-  await expect(lastNameInput).toBeVisible();
-  await expect(lastNameInput).toBeEditable();
-  await lastNameInput.fill(testData.lastNameRequired);
-
-  const step2CheckDiv = page.locator('div').filter({ hasText: 'STEP 2 Check' }).first();
-  await expect(step2CheckDiv).toBeVisible();
-  await expect(step2CheckDiv).toBeEnabled();
-  await step2CheckDiv.click();
-
-  const step3PreviewDiv = page.locator('div').filter({ hasText: 'STEP 3 Preview' }).first();
-  await expect(step3PreviewDiv).toBeVisible();
-  await expect(step3PreviewDiv).toBeEnabled();
-  await step3PreviewDiv.click();
-
-  const continueContactButton = page.getByRole('button', { name: 'Continue', exact: true });
-  await expect(continueContactButton).toBeEnabled();
-  await continueContactButton.click();
-  await page.waitForTimeout(2000);
-
-  const noMatchesButton = page.getByText('No, there are no matches', { exact: true });
-  const yesAddRecordButton = page.locator('//button[normalize-space()="Yes, add record"]');
-
-  await page.waitForTimeout(2000);
-
-  if (await yesAddRecordButton.isVisible()) {
-    await yesAddRecordButton.click();
-  } else {
-    await noMatchesButton.click();
-    await expect(yesAddRecordButton).toBeVisible();
-    await yesAddRecordButton.click();
-  }
 
   await page.waitForTimeout(2000);
   const projectRadio = page.locator('#projectselect').last();
@@ -297,8 +255,7 @@ test('Creation of Draft RFP @regression @set1', async ({ page }) => {
   const chooseUnitTemplatesButton = page.getByRole('button', { name: 'Choose Unit Templates', exact: true });
   await expect(chooseUnitTemplatesButton).toBeEnabled();
   await chooseUnitTemplatesButton.click();
- 
-  // Unit template quick search
+
   const unitTemplateQuickSearchInput = page.getByPlaceholder('Quick Search');
   await unitTemplateQuickSearchInput.fill(testData.unitTemplatePicker);
  
@@ -306,22 +263,59 @@ test('Creation of Draft RFP @regression @set1', async ({ page }) => {
   await expect(utm12991Div).toBeVisible();
   await utm12991Div.click();
  
-  // Continue after unit template selection
   const continueButton4 = page.locator('//h3[normalize-space()="Choose Unit-Template-Picker"]//ancestor::div[4]//span[normalize-space()="Continue"]');
-  await page.waitForTimeout(4000);
   await continueButton4.click();
 
-  const createDraftButton = page.locator('//button[normalize-space()="Create Draft Request for Proposal"]');
-  await expect(createDraftButton).toBeVisible();
-  const createRequestButton = page.getByRole('button', { name: 'Create Request for Proposal', exact: true });
-  await expect(createRequestButton).toBeVisible();
+  const createRfpButton = page.getByRole('button', {
+    name: 'Create Request for Proposal',
+    exact: true
+  });
 
-  await expect(createDraftButton).toBeEnabled();
-  await createDraftButton.click();
+  await expect(createRfpButton).toBeEnabled();
+  await createRfpButton.click();
 
-  const rfpSuccessDiv = page.locator('div').filter({ hasText: 'Request for Proposal created successfully. Close' }).first();
-  await expect(rfpSuccessDiv).toBeVisible();
+  const rfpSuccessMessage = page.getByText('Request for Proposal created successfully.',{ exact: true });
+  await expect(rfpSuccessMessage).toBeVisible()
 
-  const statusDraftDiv = page.locator('div').filter({ hasText: 'Status Draft' }).first();
-  await expect(statusDraftDiv).toBeVisible();
+  const rfpHeading = page.getByRole('heading', {
+    name: /RFP\d+ - Request for Proposal/
+  });
+  await expect(rfpHeading).toBeVisible();
+  
+  const headingText = await rfpHeading.innerText();
+  const rfpNumber = headingText.split(' - ')[0];
+  saveSession({ rfpNumber });
+  console.log(`[data] Saved RFP Id → ${rfpNumber}`);
+
+  const draftSpan = page.locator('span').filter({ hasText: 'Draft'}).last();
+  await expect(draftSpan).toBeVisible();
+
+const btn_back = page.locator('(//button[normalize-space()="Estimating & Pricing"])[1]');
+await btn_back.click();
+
+  // Request For Proposals navigation
+  const requestForProposalsLink_back = page.getByRole('link', {name: 'Request For Proposals',exact: true});
+  await expect(requestForProposalsLink_back).toBeVisible();
+  await expect(requestForProposalsLink_back).toBeEnabled();
+  await requestForProposalsLink_back.click();
+
+  // Request for Proposals Queue
+  const rfpQueueLabel_back = page
+    .locator('label')
+    .filter({ hasText: 'Request for Proposals Queue' })
+    .first();
+
+  await expect(rfpQueueLabel_back).toBeVisible();
+  await expect(rfpQueueLabel_back).toBeEnabled();
+  await rfpQueueLabel_back.click();
+
+// const quickSearchInput = page.locator('[data-cy="input"]');
+await expect(quickSearchInput).toBeVisible();
+await expect(quickSearchInput).toBeEditable();
+await quickSearchInput.fill(rfpNumber);
+
+const rfpResult = page.getByText(rfpNumber, { exact: true });
+await expect(rfpResult).toBeVisible();
+await expect(rfpResult).toHaveCount(1);
+
 });

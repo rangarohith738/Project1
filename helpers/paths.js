@@ -17,5 +17,13 @@ module.exports = {
     'substrateFaceOrFacestock',
     'adhesiveRequired',
     'linerRequired',
+    'editingAncillaryItemsQuantity',
+    'editingAncillaryItemsEstimate16Price',
+    'editFlatCost',
+    'costPerEach',
+    'costPerUnitSet',
+    'addressLine1',
+    'postalCode',
+    'quantityBreak2',
   ],
 };
