@@ -23,6 +23,11 @@ function generateDynamicFields() {
     addressLine1: faker.location.streetAddress(),
     postalCode: faker.location.zipCode('######'),
     quantityBreak2: String(faker.number.int({ min: 10, max: 999 })),
+    customerPartNumberRequired: faker.string.alphanumeric({ length: 8 }).toUpperCase(),
+    brandName: faker.company.name(),
+    toothCount: String(faker.number.int({ min: 1, max: 99 })),
+    itemDefaultCost: String(faker.number.int({ min: 11, max: 99 })),
+    itemDefaultPrice: String(faker.number.int({ min: 101, max: 999 })),
   };
 }
 

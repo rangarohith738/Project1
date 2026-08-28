@@ -1,12 +1,7 @@
 import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
-const { prepareSession } = require('../helpers/sessionData');
 
-test('Verify Return to RFP @regression @set1', async ({ page }) => {
-  const session = prepareSession({ force: true });
-  Object.assign(testData, session);
-  console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
-
+test('Verify General Information fields can be edited after RFP creation @regression @set2', async ({ page }) => {
   // 1. Go to login page
   await page.goto(testData.url);
   await page.waitForLoadState('domcontentloaded');
@@ -63,7 +58,6 @@ test('Verify Return to RFP @regression @set1', async ({ page }) => {
   await expect(valueInput).toBeVisible();
   await expect(valueInput).toBeEnabled();
   await valueInput.click();
-
   const requestedOption = page.locator('li[data-label="Requested"]');
   await requestedOption.click();
 
@@ -83,28 +77,45 @@ test('Verify Return to RFP @regression @set1', async ({ page }) => {
   const proposalTitleSpan = page.locator('span').filter({ hasText: `${rfpNumber} - Request for Proposal` }).first();
   await expect(proposalTitleSpan).toBeVisible();
 
-  const specificationsTab = page.locator('//button[normalize-space()="Specifications"]');
-  await expect(specificationsTab).toBeVisible();
-  await expect(specificationsTab).toBeEnabled();
-  await specificationsTab.click();
+  const descriptionDiv = page.locator('//div[@id="info-estimate"]//div[normalize-space()="Description"]//following-sibling::div//span').first();
+  await expect(descriptionDiv).toBeVisible();
+  const descriptionContent = (await descriptionDiv.innerText()).trim();
 
-  const editButton = page.locator('//button[@data-cy="edit-button"]');
-  await expect(editButton).toBeVisible();
+  const editButton = page.locator('//button[@data-cy="estimateEditButton"]');
   await expect(editButton).toBeEnabled();
   await editButton.click();
 
-  const editPage =await page.locator('//label[contains(normalize-space(), "Edit Request for Proposal")]');
-  await expect(editPage).toBeVisible();
-  const rfpid=rfpNumber.split('RFP')[1];
-  await expect(editPage).toContainText(rfpid);
+  // 22. Edit Description textarea
+  const estimateDescriptionTextarea = page.locator('//textarea[@id="estimate.description"]');
+  await expect(estimateDescriptionTextarea).toBeVisible();
+  await expect(estimateDescriptionTextarea).toBeEnabled();
+  await estimateDescriptionTextarea.fill(testData.estimate);
+  await expect(estimateDescriptionTextarea).toHaveValue(testData.estimate);
 
-  const returnToRfpButton = page.getByRole('link', { name: 'Return to Request for Proposal', exact: true }).first();
-  await expect(returnToRfpButton).toBeVisible();
-  await expect(returnToRfpButton).toBeEnabled();
-  await returnToRfpButton.click();
+  const printMethodInput = page.locator('//div[normalize-space()="Print Method"]/following-sibling::div//input');
+  await expect(printMethodInput).toBeVisible();
+  await expect(printMethodInput).toBeEnabled();
+  await printMethodInput.click();
+  await page.waitForTimeout(2000);
+  const combinationListItem = page.locator('li[data-label="Combination"]');
+  await expect(combinationListItem).toBeVisible();
+  await page.waitForTimeout(2000);
+  await combinationListItem.click();
+  await page.waitForTimeout(2000);
 
-  await expect(proposalTitleSpan).toBeVisible();
-  const proposalTitle = page.locator(`//span[@x-tooltip="${rfpNumber}-Request for Proposal"]/p`);
-  await expect(proposalTitle).toBeVisible();
+  const saveButton = page.locator('button[x-tooltip="Save"]').first();
+  await expect(saveButton).toBeVisible();
+  await expect(saveButton).toBeEnabled();
+  
+  const cancelEditButton = page.locator('button[x-tooltip="Cancel"]').first();
+  await expect(cancelEditButton).toBeVisible();
+  
+  await saveButton.click();
 
+  const printMethodDiv = page.locator('//div[@id="info-estimate"]//div[normalize-space()="Print Method"]//following-sibling::div//span').first();
+  await expect(printMethodDiv).toBeVisible();
+  await page.waitForTimeout(4000);
+  await expect(printMethodDiv).toHaveText('Combination');
+
+  await expect(descriptionDiv).toContainText(testData.estimate);
 });

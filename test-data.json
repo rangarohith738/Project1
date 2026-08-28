@@ -9,5 +9,8 @@
   "surfaceTempAfter": "38",
   "unitTemplatePicker": "UTM12991",
   "estimate": "Testing123",
-  "otp": ""
+  "otp": "",
+  "itemDefaultCost": "20",
+  "itemDefaultPrice": "30",
+  "awaitPageLocatorQlEditorFill": "Test123"
 }

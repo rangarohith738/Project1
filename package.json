@@ -6,6 +6,9 @@
     "test": "playwright test",
     "test:sanity": "playwright test sanity --project=chromium --headed",
     "test:regression": "playwright test regression --project=chromium --headed",
+    "test:set1": "playwright test regression --project=chromium --workers=1 --grep \"@set1\"",
+    "test:set2": "playwright test regression --project=chromium --workers=4 --grep \"@set2\"",
+    "test:regression:all": "playwright test regression --project=chromium --workers=4 --grep \"@set1|@set2\"",
     "test:rfp-flow": "playwright test regression/Create_Draft_RFP.spec.js regression/Verify_RFP_in_RFP_Queue.spec.js --project=chromium --workers=1"
   },
   "devDependencies": {

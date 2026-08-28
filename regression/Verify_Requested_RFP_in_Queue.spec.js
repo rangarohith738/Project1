@@ -1,14 +1,13 @@
+// Verify newly created Requested RFP is displayed on the RFP Queue page (TC04)
 import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
-const { prepareSession } = require('../helpers/sessionData');
+const { prepareSession, saveSession } = require('../helpers/sessionData');
 
-test('Creation of Requested RFP @regression @set1', async ({ page }) => {
-  
+test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
 
-  // 1. Go to login page
   await page.goto(testData.url);
   await page.waitForLoadState('domcontentloaded');
 
@@ -109,7 +108,6 @@ test('Creation of Requested RFP @regression @set1', async ({ page }) => {
   await expect(quotingOptionsFieldset).toBeVisible();
   await expect(quotingOptionsFieldset).toBeEnabled();
   await quotingOptionsFieldset.click();
-
 
   const maxColorsInput = page.locator('input[name="estimate.max_colors_to_quote"][type="text"]');
   await expect(maxColorsInput).toBeVisible();
@@ -256,11 +254,11 @@ test('Creation of Requested RFP @regression @set1', async ({ page }) => {
 
   const unitTemplateQuickSearchInput = page.getByPlaceholder('Quick Search');
   await unitTemplateQuickSearchInput.fill(testData.unitTemplatePicker);
- 
+
   const utm12991Div = page.locator('div').filter({ hasText: 'UTM12991' }).first();
   await expect(utm12991Div).toBeVisible();
   await utm12991Div.click();
- 
+
   const continueButton4 = page.locator('//h3[normalize-space()="Choose Unit-Template-Picker"]//ancestor::div[4]//span[normalize-space()="Continue"]');
   await continueButton4.click();
 
@@ -268,10 +266,75 @@ test('Creation of Requested RFP @regression @set1', async ({ page }) => {
     name: 'Create Request for Proposal',
     exact: true
   });
-
   await expect(createRfpButton).toBeEnabled();
   await createRfpButton.click();
 
-  const rfpSuccessMessage = page.getByText('Request for Proposal created successfully.',{ exact: true });
-  await expect(rfpSuccessMessage).toBeVisible()
+  const rfpSuccessMessage = page.getByText('Request for Proposal created successfully.', { exact: true });
+  await expect(rfpSuccessMessage).toBeVisible();
+
+  await page.waitForTimeout(2000);
+
+  const rfpHeading = page.locator('//h1/span[contains(normalize-space(), "Request for Proposal")]');
+  await expect(rfpHeading).toBeVisible();
+  const rfpText = await rfpHeading.innerText();
+  const rfpNumber = rfpText.split('-')[0].trim();
+  saveSession({ rfpNumber });
+  console.log(`[data] Saved RFP Id → ${rfpNumber}`);
+
+  const draftIcon = page.locator('//span[normalize-space()="Draft"]/preceding-sibling::div/span/span[normalize-space()="01"]');
+  await expect(draftIcon).toHaveCount(0);
+
+  const statusRequestedDiv = page.locator('div').filter({ hasText: 'Status Requested' }).first();
+  await expect(statusRequestedDiv).toBeVisible();
+
+  const estimateMenuLinkBack = page.locator('(//button[normalize-space()="Estimating & Pricing"])[1]');
+  await expect(estimateMenuLinkBack).toBeVisible();
+  await estimateMenuLinkBack.click();
+
+  const rfpMenuLinkBack = page.getByRole('link', { name: 'Request For Proposals', exact: true });
+  await expect(rfpMenuLinkBack).toBeVisible();
+  await expect(rfpMenuLinkBack).toBeEnabled();
+  await rfpMenuLinkBack.click();
+
+  const rfpQueueLabel = page
+    .locator('label')
+    .filter({ hasText: /^Request for Proposals Queue$/ })
+    .first();
+  await expect(rfpQueueLabel).toBeVisible();
+  await expect(rfpQueueLabel).toBeEnabled();
+
+  const rfpQuickSearchInput = page.getByPlaceholder('Quick Search');
+  await expect(rfpQuickSearchInput).toBeEnabled();
+  await rfpQuickSearchInput.click();
+  await rfpQuickSearchInput.fill(rfpNumber);
+
+  await page.waitForTimeout(2000);
+
+  const rfpCell = page.locator('td').filter({ hasText: rfpNumber }).first();
+  await expect(rfpCell).toBeVisible();
+  await expect(rfpCell).toBeEnabled();
+  await expect(rfpCell).toHaveText(rfpNumber);
+
+  const rfpRowCount = await page.locator('//tbody/tr').count();
+  await expect(rfpRowCount).toBe(1);
+
+  const rfpCellCustomerName = page.locator('td').filter({ hasText: testData.quickSearch }).first();
+  await expect(rfpCellCustomerName).toBeVisible();
+  await expect(rfpCellCustomerName).toHaveText(testData.quickSearch);
+
+  const rfpCellPlant = page.locator('td').filter({ hasText: 'Fortis' }).first();
+  await expect(rfpCellPlant).toBeVisible();
+  await expect(rfpCellPlant).toHaveText('Fortis');
+
+  const rfpCellStatus = page.locator('td').filter({ hasText: 'Requested' }).first();
+  await expect(rfpCellStatus).toBeVisible();
+  await expect(rfpCellStatus).toHaveText('Requested');
+
+  const rfpCellCreatedBy = page.locator('td').filter({ hasText: 'Rohith Ranga' }).first();
+  await expect(rfpCellCreatedBy).toBeVisible();
+  await expect(rfpCellCreatedBy).toHaveText('Rohith Ranga');
+
+  const productClassCell = page.locator('td').filter({ hasText: 'RFID Label' }).first();
+  await expect(productClassCell).toBeVisible();
+  await expect(productClassCell).toHaveText('RFID Label');
 });

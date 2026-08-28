@@ -25,5 +25,10 @@ module.exports = {
     'addressLine1',
     'postalCode',
     'quantityBreak2',
+    'customerPartNumberRequired',
+    'brandName',
+    'toothCount',
+    'itemDefaultCost',
+    'itemDefaultPrice',
   ],
 };
