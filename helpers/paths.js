@@ -11,6 +11,8 @@ module.exports = {
     'firstNameRequired',
     'lastNameRequired',
     'nameRequired',
+    'opportunityName',
+    'projectDescription',
     'description',
     'descriptionRequired',
     'appearanceColorRequired',

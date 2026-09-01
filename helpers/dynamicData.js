@@ -9,6 +9,8 @@ function generateDynamicFields() {
     firstNameRequired: faker.person.firstName(),
     lastNameRequired: faker.person.lastName(),
     nameRequired: faker.person.fullName(),
+    opportunityName: faker.person.fullName(),
+    projectDescription: faker.lorem.sentence(),
     description: faker.lorem.sentence(),
     descriptionRequired: faker.lorem.sentence(),
     appearanceColorRequired: faker.color.human(),
