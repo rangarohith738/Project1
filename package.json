@@ -15,8 +15,6 @@
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.62.1",
-    "allure-playwright": "^3.10.2",
-    "@reportportal/agent-js-playwright": "^5.4.0",
-    "@axe-core/playwright": "^4.9.0"
+    "allure-playwright": "^3.10.2"
   }
 }
