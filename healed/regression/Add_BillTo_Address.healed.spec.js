@@ -29,9 +29,9 @@ test('Add Bill To Address in RFP @regression', async ({ page }) => {
     () => page.getByRole('link', { name: 'Request For Proposals', exact: true }));
 
   await heal(page, 'mine label', 'visible', null,
-    () => page.locator('label').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
   await heal(page, 'mine label', 'click', null,
-    () => page.locator('label').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
 
   await heal(page, 'sioux cell', 'visible', null,
     () => page.locator('td').filter({ hasText: /^Sioux Preme Packing Co\.$/ }).first());
@@ -48,9 +48,9 @@ test('Add Bill To Address in RFP @regression', async ({ page }) => {
     () => page.getByRole('link', { name: 'Request For Proposals', exact: true }));
 
   await heal(page, 'mine div', 'visible', null,
-    () => page.locator('div').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
   await heal(page, 'mine div', 'click', null,
-    () => page.locator('div').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
 
   await heal(page, 'filters button', 'click', null,
     () => page.getByRole('button', { name: 'Filters 0', exact: true }));

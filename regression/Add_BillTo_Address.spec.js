@@ -38,7 +38,7 @@ test('Add Bill To Address in RFP @regression @set2', async ({ page }) => {
   await expect(rfpMenuLink).toBeEnabled();
   await rfpMenuLink.click();
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
 
@@ -46,25 +46,14 @@ test('Add Bill To Address in RFP @regression @set2', async ({ page }) => {
   await expect(filtersButton).toBeEnabled();
   await filtersButton.click();
 
-  const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-  await columnInput.click();
+  const columnSelect = page.locator('select[data-flux-select-native][x-model="selection.column"]').first();
+  await columnSelect.selectOption("status");
 
-  const statusListItem = page.locator('li[data-label="Status"]').first();
-  await statusListItem.click();
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.selectOption("is equal to");
 
-  const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-  await expect(operatorInput).toBeEnabled();
-  await operatorInput.click();
-
-  const containsListItem = page.locator('li[data-label="is"]');
-  await containsListItem.click();
-
-  const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-  await expect(valueInput).toBeVisible();
-  await expect(valueInput).toBeEnabled();
-  await valueInput.click();
-  const requestedOption = page.locator('li[data-label="Requested"]');
-  await requestedOption.click();
+  const valueSelect = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select");
+  await valueSelect.selectOption("requested");
 
   const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
   await expect(applyButton).toBeEnabled();
@@ -100,37 +89,33 @@ test('Add Bill To Address in RFP @regression @set2', async ({ page }) => {
   }
   
   await expect(selectAddressButton).toBeEnabled();
+  await selectAddressButton.click();
 
-  const newAddressButton = page.locator('(//button[normalize-space()="New Address"])[2]');
-  await expect(newAddressButton).toBeEnabled();
-  await newAddressButton.click();
+  // New Address is no longer on RFP show page — kept for later
+  // const newAddressButton = page.locator('(//button[normalize-space()="New Address"])[2]');
+  // await expect(newAddressButton).toBeEnabled();
+  // await newAddressButton.click();
+  //
+  // const addressLine1Input = page.locator('//input[@placeholder="Enter Address Line 1"]').first();
+  // await expect(addressLine1Input).toBeVisible();
+  // await expect(addressLine1Input).toBeEnabled();
+  // await addressLine1Input.fill(testData.addressLine1);
+  // const addressPincodeInput = page.locator('//input[@placeholder="Enter Postal Code"]').first();
+  // await expect(addressPincodeInput).toBeVisible();
+  // await expect(addressPincodeInput).toBeEnabled();
+  // await addressPincodeInput.fill(testData.postalCode);
+  //
+  // const saveButton = page.locator('//button[@data-cy="address-drawer-save"]//span[normalize-space()="Save"]').first();
+  // await expect(saveButton).toBeEnabled();
+  // await saveButton.click();
+  //
+  // const billToAddressText = page.locator('(//div[normalize-space()="Bill To"])[1]//..//span[@class="text-right"]').first();
+  // await expect(billToAddressText).toBeVisible();
+  // const billToAddress = (await billToAddressText.innerText()).trim();
+  // console.log('billToAddress', billToAddress);
+  // await expect(billToAddressText).toContainText(testData.addressLine1);
 
-  const addressLine1Input = page.locator('//input[@placeholder="Enter Address Line 1"]').first();
-  await expect(addressLine1Input).toBeVisible();
-  await expect(addressLine1Input).toBeEnabled();
-  await addressLine1Input.fill(testData.addressLine1);
-  const addressPincodeInput = page.locator('//input[@placeholder="Enter Postal Code"]').first();
-  await expect(addressPincodeInput).toBeVisible();
-  await expect(addressPincodeInput).toBeEnabled();
-  await addressPincodeInput.fill(testData.postalCode);
-
-  const saveButton = page.locator('//button[@data-cy="address-drawer-save"]//span[normalize-space()="Save"]').first();
-  await expect(saveButton).toBeEnabled();
-  await saveButton.click();
-
-  const billToAddressText = page.locator('(//div[normalize-space()="Bill To"])[1]//..//span[@class="text-right"]').first();
-  await expect(billToAddressText).toBeVisible();
-  const billToAddress = (await billToAddressText.innerText()).trim();
-  console.log('billToAddress', billToAddress);
-  await expect(billToAddressText).toContainText(testData.addressLine1);
-
-  //selecting exisiting address
-  await expect(editButton).toBeEnabled();
-  await editButton.click();
-
-  await expect(customerAddressDiv).toBeVisible();
-  await expect(customerAddressDiv).toBeEnabled();
-  await customerAddressDiv.click();
+  // selecting existing address
 
   const firstRadio = page.locator('input[type="radio"][name="selectedId"]').first();
 

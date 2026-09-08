@@ -33,7 +33,7 @@ test('Set Ancillary Charges in RFP @regression @set1', async ({ page }) => {
   // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -67,7 +67,7 @@ test('Set Ancillary Charges in RFP @regression @set1', async ({ page }) => {
 
   await page.waitForLoadState('domcontentloaded');
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
@@ -126,7 +126,7 @@ test('Set Ancillary Charges in RFP @regression @set1', async ({ page }) => {
   await expect(ancillary15PriceInput).toBeEditable();
   await ancillary15PriceInput.fill(testData.costPerEach);
 
-  const saveAncillaryItemButton = page.locator('button[x-tooltip="Save"][wire\\:click="saveAncillaryItemEstimate"]');
+  const saveAncillaryItemButton = page.locator("//div[@id='info-ancillary-items']//button[@x-tooltip='Save']");
   await expect(saveAncillaryItemButton).toBeEnabled();
   await saveAncillaryItemButton.scrollIntoViewIfNeeded();
   await saveAncillaryItemButton.click({ force: true });

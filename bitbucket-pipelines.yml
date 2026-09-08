@@ -18,6 +18,16 @@ definitions:
 # Manual only (Pipelines → Run pipeline). No branches/default = not on push.
 pipelines:
   custom:
+    demo:
+      - step:
+          <<: *rfp-test
+          name: Run RFP Demo
+          script:
+            - npm ci
+            - npx playwright install --with-deps chromium
+            - rm -f data/session-data.json data/session-data-w*.json
+            - npx playwright test --project=chromium --workers=1 --grep @demo
+
     set1:
       - step:
           <<: *rfp-test

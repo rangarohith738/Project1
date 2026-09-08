@@ -47,7 +47,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(selectCustomerButton).toBeEnabled();
   await selectCustomerButton.click();
 
-  const quickSearchInput = page.getByPlaceholder('Quick Search');
+  const quickSearchInput = page.getByPlaceholder('Quick Search').first();
   await expect(quickSearchInput).toBeVisible();
   await expect(quickSearchInput).toBeEditable();
   await quickSearchInput.fill(testData.quickSearch);
@@ -81,7 +81,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(opportunityNameInput).toBeVisible();
   await opportunityNameInput.fill(testData.nameRequired);
 
-  const opportunityDescriptionInput = page.locator('input[name="project.description"][type="text"]');
+  const opportunityDescriptionInput = page.locator('//input[contains(@name,"project_description")]');
   await expect(opportunityDescriptionInput).toBeVisible();
   await opportunityDescriptionInput.fill(testData.description);
 
@@ -90,7 +90,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(pricingTablePresetsFieldset).toBeEnabled();
   await pricingTablePresetsFieldset.click();
 
-  const salesUnitInput = page.locator('input[name="estimate.quantity_unit_id"][type="text"]');
+  const salesUnitInput = page.locator('//input[contains(@name,"quantityUnitId")]');
   await expect(salesUnitInput).toBeVisible();
   await expect(salesUnitInput).toBeEnabled();
   await salesUnitInput.click();
@@ -99,7 +99,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(feetOption).toBeEnabled();
   await feetOption.click();
 
-  const quantityBreak1Input = page.locator('input[name="estimate.quantity_break_1"][type="text"]');
+  const quantityBreak1Input = page.locator('input[name="deliverableItemDTO.extension.quantityBreak1"][type="text"]');
   await expect(quantityBreak1Input).toBeVisible();
   await expect(quantityBreak1Input).toBeEditable();
   await quantityBreak1Input.fill(testData.quantityBreak1);
@@ -109,7 +109,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(quotingOptionsFieldset).toBeEnabled();
   await quotingOptionsFieldset.click();
 
-  const maxColorsInput = page.locator('input[name="estimate.max_colors_to_quote"][type="text"]');
+  const maxColorsInput = page.locator('input[name="deliverableItemDTO.extension.maxColorsToQuote"][type="text"]');
   await expect(maxColorsInput).toBeVisible();
   await expect(maxColorsInput).toBeEnabled();
   await maxColorsInput.click();
@@ -126,7 +126,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(generalInfoDiv).toBeEnabled();
   await generalInfoDiv.click();
 
-  const productClassInput = page.locator('input[name="estimate.product_class_id"][type="text"]');
+  const productClassInput = page.locator('input[name="deliverableItemDTO.productClassId"][type="text"]');
   await expect(productClassInput).toBeVisible();
   await expect(productClassInput).toBeEnabled();
   await productClassInput.click();
@@ -135,7 +135,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(rfidLabelOption).toBeEnabled();
   await rfidLabelOption.click();
 
-  const workflowInput = page.locator('input[name="estimateSpecification.workflowId"][type="text"]');
+  const workflowInput = page.locator('input[name="deliverableItemSpecification.workflowId"][type="text"]');
   await expect(workflowInput).toBeVisible();
   await expect(workflowInput).toBeEnabled();
   await workflowInput.click();
@@ -144,7 +144,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(rfidWorkflowOption).toBeEnabled();
   await rfidWorkflowOption.click();
 
-  const plantInput = page.locator('input[name="estimateSpecification.plantId"][type="text"]');
+  const plantInput = page.locator('input[name="deliverableItemSpecification.plantId"][type="text"]');
   await expect(plantInput).toBeVisible();
   await expect(plantInput).toBeEnabled();
   await plantInput.click();
@@ -153,13 +153,13 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(fortisOption).toBeEnabled();
   await fortisOption.click();
 
-  const estimateDescriptionTextarea = page.locator('//label[@for="estimate.description"]/following-sibling::div/textarea');
+  const estimateDescriptionTextarea = page.locator('//label[@for="deliverableItemDTO.description"]/following-sibling::div/textarea');
   await expect(estimateDescriptionTextarea).toBeVisible();
   await expect(estimateDescriptionTextarea).toBeEnabled();
   await estimateDescriptionTextarea.click();
   await estimateDescriptionTextarea.fill(testData.descriptionRequired);
 
-  const unitSetInput = page.locator('input[name="estimateSpecification.unitSetTypeId"][type="text"]');
+  const unitSetInput = page.locator('input[name="deliverableItemSpecification.unitSetTypeId"][type="text"]');
   await expect(unitSetInput).toBeVisible();
   await expect(unitSetInput).toBeEnabled();
   await unitSetInput.click();
@@ -168,7 +168,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(rollOption).toBeEnabled();
   await rollOption.click();
 
-  const coreDiameterInput = page.locator('input[name="estimateSpecification.coreDiameterId"][type="text"]');
+  const coreDiameterInput = page.locator('input[name="deliverableItemSpecification.coreDiameterId"][type="text"]');
   await expect(coreDiameterInput).toBeVisible();
   await expect(coreDiameterInput).toBeEnabled();
   await coreDiameterInput.click();
@@ -177,12 +177,12 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(oneInchOption).toBeEnabled();
   await oneInchOption.click();
 
-  const applicationTempInput = page.locator('input[name="estimateSpecification.applicationTemp"][type="text"]');
+  const applicationTempInput = page.locator('input[name="deliverableItemSpecification.applicationTemp"][type="text"]');
   await expect(applicationTempInput).toBeVisible();
   await expect(applicationTempInput).toBeEditable();
   await applicationTempInput.fill(testData.applicationTempRequired);
 
-  const surfaceTypeInput = page.locator('input[name="estimateSpecification.applicationSurfaceTypeValuelistOptionId"][type="text"]');
+  const surfaceTypeInput = page.locator('input[name="deliverableItemSpecification.applicationSurfaceTypeValuelistOptionId"][type="text"]');
   await expect(surfaceTypeInput).toBeVisible();
   await expect(surfaceTypeInput).toBeEnabled();
   await surfaceTypeInput.click();
@@ -191,7 +191,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(glassOption).toBeEnabled();
   await glassOption.click();
 
-  const surfaceTempAfterInput = page.locator('input[name="estimateSpecification.surfaceTempAfterApplication"][type="text"]');
+  const surfaceTempAfterInput = page.locator('input[name="deliverableItemSpecification.surfaceTempAfterApplication"][type="text"]');
   await expect(surfaceTempAfterInput).toBeVisible();
   await expect(surfaceTempAfterInput).toBeEditable();
   await surfaceTempAfterInput.fill(testData.surfaceTempAfter);
@@ -201,27 +201,27 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(substrateInfoFieldset).toBeEnabled();
   await substrateInfoFieldset.click();
 
-  const appearanceColorInput = page.locator('input[name="estimateSpecification.substrateColor"][type="text"]');
+  const appearanceColorInput = page.locator('input[name="deliverableItemSpecification.substrateColor"][type="text"]');
   await expect(appearanceColorInput).toBeVisible();
   await expect(appearanceColorInput).toBeEditable();
   await appearanceColorInput.fill(testData.appearanceColorRequired);
 
-  const substrateFaceInput = page.locator('input[name="estimateSpecification.substrateFace"][type="text"]');
+  const substrateFaceInput = page.locator('input[name="deliverableItemSpecification.substrateFace"][type="text"]');
   await expect(substrateFaceInput).toBeVisible();
   await expect(substrateFaceInput).toBeEditable();
   await substrateFaceInput.fill(testData.substrateFaceOrFacestock);
 
-  const adhesiveInput = page.locator('input[name="estimateSpecification.substrateAdhesive"][type="text"]');
+  const adhesiveInput = page.locator('input[name="deliverableItemSpecification.substrateAdhesive"][type="text"]');
   await expect(adhesiveInput).toBeVisible();
   await expect(adhesiveInput).toBeEditable();
   await adhesiveInput.fill(testData.adhesiveRequired);
 
-  const linerInput = page.locator('input[name="estimateSpecification.substrateLiner"][type="text"]');
+  const linerInput = page.locator('input[name="deliverableItemSpecification.substrateLiner"][type="text"]');
   await expect(linerInput).toBeVisible();
   await expect(linerInput).toBeEditable();
   await linerInput.fill(testData.adhesiveRequired);
 
-  const coatingInput = page.locator('input[name="estimateSpecification.coatingTypeValuelistOptionId"][type="text"]');
+  const coatingInput = page.locator('input[name="deliverableItemSpecification.coatingTypeValuelistOptionId"][type="text"]');
   await expect(coatingInput).toBeVisible();
   await expect(coatingInput).toBeEnabled();
   await coatingInput.click();
@@ -230,7 +230,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(uvGlossOption).toBeEnabled();
   await uvGlossOption.click();
 
-  const laminateInput = page.locator('input[name="estimateSpecification.laminateTypeValuelistOptionId"][type="text"]');
+  const laminateInput = page.locator('input[name="deliverableItemSpecification.laminateTypeValuelistOptionId"][type="text"]');
   await expect(laminateInput).toBeVisible();
   await expect(laminateInput).toBeEnabled();
   await laminateInput.click();
@@ -239,7 +239,7 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(ulLaminateOption).toBeEnabled();
   await ulLaminateOption.click();
 
-  const windDirectionInput = page.locator('input[name="estimateSpecification.windDirectionId"][type="text"]');
+  const windDirectionInput = page.locator('input[name="deliverableItemSpecification.windDirectionId"][type="text"]');
   await expect(windDirectionInput).toBeVisible();
   await expect(windDirectionInput).toBeEnabled();
   await windDirectionInput.click();
@@ -252,15 +252,17 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(chooseUnitTemplatesButton).toBeEnabled();
   await chooseUnitTemplatesButton.click();
 
-  const unitTemplateQuickSearchInput = page.getByPlaceholder('Quick Search');
+  const unitTemplateQuickSearchInput = page.locator('input[placeholder="Quick Search"][data-flux-control]');
   await unitTemplateQuickSearchInput.fill(testData.unitTemplatePicker);
 
   const utm12991Div = page.locator('div').filter({ hasText: 'UTM12991' }).first();
   await expect(utm12991Div).toBeVisible();
   await utm12991Div.click();
+  await page.waitForTimeout(2000);
 
   const continueButton4 = page.locator('//h3[normalize-space()="Choose Unit-Template-Picker"]//ancestor::div[4]//span[normalize-space()="Continue"]');
   await continueButton4.click();
+  await page.waitForTimeout(2000);
 
   const createRfpButton = page.getByRole('button', {
     name: 'Create Request for Proposal',
@@ -330,9 +332,9 @@ test('Verify Requested RFP in Queue @regression @set1', async ({ page }) => {
   await expect(rfpCellStatus).toBeVisible();
   await expect(rfpCellStatus).toHaveText('Requested');
 
-  const rfpCellCreatedBy = page.locator('td').filter({ hasText: 'Rohith Ranga' }).first();
+  const rfpCellCreatedBy = page.locator('td').filter({ hasText: 'Ranga Sharan Rohith' }).first();
   await expect(rfpCellCreatedBy).toBeVisible();
-  await expect(rfpCellCreatedBy).toHaveText('Rohith Ranga');
+  await expect(rfpCellCreatedBy).toHaveText('Ranga Sharan Rohith');
 
   const productClassCell = page.locator('td').filter({ hasText: 'RFID Label' }).first();
   await expect(productClassCell).toBeVisible();

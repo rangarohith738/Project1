@@ -27,7 +27,7 @@ module.exports = defineConfig({
     video: 'retain-on-failure',
     trace: 'on',
     launchOptions: {
-      slowMo: process.env.CI ? 1500 : 3000,
+      slowMo: process.env.CI ? 1000 :1500,
     },
   },
   projects: [

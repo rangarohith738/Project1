@@ -38,7 +38,7 @@ test('Add Ship To Address in RFP @regression @set2', async ({ page }) => {
   await expect(rfpMenuLink).toBeEnabled();
   await rfpMenuLink.click();
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
 
@@ -46,25 +46,17 @@ test('Add Ship To Address in RFP @regression @set2', async ({ page }) => {
   await expect(filtersButton).toBeEnabled();
   await filtersButton.click();
 
-  const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-  await columnInput.click();
+  const columnSelect = page.locator("xpath=//option[normalize-space(.)='Column']/ancestor::select");
+  await columnSelect.click();
+  await columnSelect.selectOption("status");
 
-  const statusListItem = page.locator('li[data-label="Status"]').first();
-  await statusListItem.click();
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.click();
+  await operatorSelect.selectOption("is equal to");
 
-  const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-  await expect(operatorInput).toBeEnabled();
-  await operatorInput.click();
-
-  const containsListItem = page.locator('li[data-label="is"]');
-  await containsListItem.click();
-
-  const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-  await expect(valueInput).toBeVisible();
-  await expect(valueInput).toBeEnabled();
-  await valueInput.click();
-  const requestedOption = page.locator('li[data-label="Requested"]');
-  await requestedOption.click();
+  const valueSelect = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select");
+  await valueSelect.click();
+  await valueSelect.selectOption("requested");
 
   const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
   await expect(applyButton).toBeEnabled();
@@ -86,7 +78,7 @@ test('Add Ship To Address in RFP @regression @set2', async ({ page }) => {
   await expect(shipToEditButton).toBeEnabled();
   await shipToEditButton.click();
 
-  const customerAddressDiv = page.locator('(//span[@x-tooltip="Choose"])').nth(1);
+  const customerAddressDiv = page.locator('(//span[@x-tooltip="Choose"])[3]');
   await expect(customerAddressDiv).toBeVisible();
   await expect(customerAddressDiv).toBeEnabled();
 
@@ -100,37 +92,33 @@ test('Add Ship To Address in RFP @regression @set2', async ({ page }) => {
   }
 
   await expect(selectAddressButton).toBeEnabled();
+  await selectAddressButton.click();
 
-  const newAddressButton = page.locator('(//button[normalize-space()="New Address"])[3]');
-  await expect(newAddressButton).toBeEnabled();
-  await newAddressButton.click();
-
-  const addressLine1Input = page.locator('//input[@placeholder="Enter Address Line 1"]').last();
-  await expect(addressLine1Input).toBeVisible();
-  await expect(addressLine1Input).toBeEditable();
-  await addressLine1Input.fill(testData.addressLine1);
-  const addressPincodeInput = page.locator('//input[@placeholder="Enter Postal Code"]').last();
-  await expect(addressPincodeInput).toBeVisible();
-  await expect(addressPincodeInput).toBeEditable();
-  await addressPincodeInput.fill(testData.postalCode);
-
-  const saveButton = page.locator('//button[@data-cy="address-drawer-save"]//span[normalize-space()="Save"]').last();
-  await expect(saveButton).toBeEnabled();
-  await saveButton.click();
-
-  const shipToAddressText = page.locator('(//div[normalize-space()="Ship To"])[1]//..//span[@class="text-right"]').first();
-  await expect(shipToAddressText).toBeVisible();
-  const shipToAddress = (await shipToAddressText.innerText()).trim();
-  console.log(`[data] shipToAddress: ${shipToAddress}`);
-  await expect(shipToAddressText).toContainText(testData.addressLine1);
+  // New Address is no longer on RFP show page — kept for later
+  // const newAddressButton = page.locator('(//button[normalize-space()="New Address"])[3]');
+  // await expect(newAddressButton).toBeEnabled();
+  // await newAddressButton.click();
+  //
+  // const addressLine1Input = page.locator('//input[@placeholder="Enter Address Line 1"]').last();
+  // await expect(addressLine1Input).toBeVisible();
+  // await expect(addressLine1Input).toBeEditable();
+  // await addressLine1Input.fill(testData.addressLine1);
+  // const addressPincodeInput = page.locator('//input[@placeholder="Enter Postal Code"]').last();
+  // await expect(addressPincodeInput).toBeVisible();
+  // await expect(addressPincodeInput).toBeEditable();
+  // await addressPincodeInput.fill(testData.postalCode);
+  //
+  // const saveButton = page.locator('//button[@data-cy="address-drawer-save"]//span[normalize-space()="Save"]').last();
+  // await expect(saveButton).toBeEnabled();
+  // await saveButton.click();
+  //
+  // const shipToAddressText = page.locator('(//div[normalize-space()="Ship To"])[1]//..//span[@class="text-right"]').first();
+  // await expect(shipToAddressText).toBeVisible();
+  // const shipToAddress = (await shipToAddressText.innerText()).trim();
+  // console.log(`[data] shipToAddress: ${shipToAddress}`);
+  // await expect(shipToAddressText).toContainText(testData.addressLine1);
 
   // selecting existing address
-  await expect(shipToEditButton).toBeEnabled();
-  await shipToEditButton.click();
-
-  await expect(customerAddressDiv).toBeVisible();
-  await expect(customerAddressDiv).toBeEnabled();
-  await customerAddressDiv.click();
 
   const firstRadio = page.locator('input[type="radio"][name="selectedId"]').first();
 
@@ -145,6 +133,7 @@ test('Add Ship To Address in RFP @regression @set2', async ({ page }) => {
   await expect(saveShipToAddressButton).toBeEnabled();
   await saveShipToAddressButton.click();
 
+  const shipToAddressText = page.locator('(//div[normalize-space()="Ship To"])[1]//..//span[@class="text-right"]').first();
   const billToAddressText = page.locator('(//div[normalize-space()="Bill To"])[1]//..//span[@class="text-right"]').first();
   if (await billToAddressText.isVisible()) {
     const billToAddress = (await billToAddressText.innerText()).trim();

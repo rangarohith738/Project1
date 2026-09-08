@@ -31,9 +31,9 @@ test('Edit Specification Sections After RFP Creation @regression', async ({ page
     () => page.getByRole('link', { name: 'Request For Proposals', exact: true }));
 
   await heal(page, 'mine filter', 'visible', null,
-    () => page.locator('div').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
   await heal(page, 'mine filter', 'click', null,
-    () => page.locator('div').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
 
   await heal(page, 'rfp2929 cell', 'visible', null,
     () => page.locator('td').filter({ hasText: /^RFP2929$/ }).first());

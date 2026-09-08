@@ -33,7 +33,7 @@ test('Verify General Information fields can be edited after RFP creation @regres
   await expect(rfpMenuLink).toBeEnabled();
   await rfpMenuLink.click();
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
 
@@ -41,25 +41,14 @@ test('Verify General Information fields can be edited after RFP creation @regres
   await expect(filtersButton).toBeEnabled();
   await filtersButton.click();
 
-  const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-  await columnInput.click();
+  const columnSelect = page.locator('select[data-flux-select-native][x-model="selection.column"]').first();
+  await columnSelect.selectOption("status");
 
-  const statusListItem = page.locator('li[data-label="Status"]').first();
-  await statusListItem.click();
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.selectOption("is equal to");
 
-  const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-  await expect(operatorInput).toBeEnabled();
-  await operatorInput.click();
-
-  const containsListItem = page.locator('li[data-label="is"]');
-  await containsListItem.click();
-
-  const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-  await expect(valueInput).toBeVisible();
-  await expect(valueInput).toBeEnabled();
-  await valueInput.click();
-  const requestedOption = page.locator('li[data-label="Requested"]');
-  await requestedOption.click();
+  const valueSelect = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select");
+  await valueSelect.selectOption("requested");
 
   const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
   await expect(applyButton).toBeEnabled();
@@ -86,7 +75,7 @@ test('Verify General Information fields can be edited after RFP creation @regres
   await editButton.click();
 
   // 22. Edit Description textarea
-  const estimateDescriptionTextarea = page.locator('//textarea[@id="estimate.description"]');
+  const estimateDescriptionTextarea = page.locator('//textarea[@name="deliverableItem.description"]');
   await expect(estimateDescriptionTextarea).toBeVisible();
   await expect(estimateDescriptionTextarea).toBeEnabled();
   await estimateDescriptionTextarea.fill(testData.estimate);
@@ -114,7 +103,7 @@ test('Verify General Information fields can be edited after RFP creation @regres
 
   const printMethodDiv = page.locator('//div[@id="info-estimate"]//div[normalize-space()="Print Method"]//following-sibling::div//span').first();
   await expect(printMethodDiv).toBeVisible();
-  await page.waitForTimeout(4000);
+  await page.waitForTimeout(5000);
   await expect(printMethodDiv).toHaveText('Combination');
 
   await expect(descriptionDiv).toContainText(testData.estimate);

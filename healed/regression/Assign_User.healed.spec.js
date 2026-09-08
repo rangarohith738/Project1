@@ -32,9 +32,9 @@ test('Assign User in RFP @regression', async ({ page }) => {
     () => page.getByRole('link', { name: 'Request For Proposals', exact: true }));
 
   await heal(page, 'mine filter', 'visible', null,
-    () => page.locator('div').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
   await heal(page, 'mine filter', 'click', null,
-    () => page.locator('div').filter({ hasText: /^Mine$/ }).first());
+    () => page.locator('[wire\\:key="quick-filter-assigned-to-me"] button'));
 
   await heal(page, 'rfp2959 cell', 'visible', null,
     () => page.locator('td').filter({ hasText: /^RFP2959$/ }).first());
@@ -79,12 +79,12 @@ test('Assign User in RFP @regression', async ({ page }) => {
     () => page.getByRole('button', { name: 'Select User', exact: true }));
 
   await heal(page, 'rohith ranga cell', 'visible', null,
-    () => page.locator('td').filter({ hasText: /^Rohith Ranga$/ }).first());
+    () => page.locator('td').filter({ hasText: /^Ranga Sharan Rohith$/ }).first());
   await heal(page, 'rohith ranga cell', 'click', null,
-    () => page.locator('td').filter({ hasText: /^Rohith Ranga$/ }).first());
+    () => page.locator('td').filter({ hasText: /^Ranga Sharan Rohith$/ }).first());
 
   await heal(page, 'rohith ranga div', 'visible', null,
-    () => page.locator('div').filter({ hasText: /^Rohith Ranga$/ }).first());
+    () => page.locator('div').filter({ hasText: /^Ranga Sharan Rohith$/ }).first());
 
   await heal(page, 'unlink button', 'visible', null,
     () => page.getByRole('button', { name: 'Unlink', exact: true }));
@@ -93,5 +93,5 @@ test('Assign User in RFP @regression', async ({ page }) => {
     () => page.getByRole('button', { name: 'Continue', exact: true }));
 
   await heal(page, 'rohith ranga button', 'visible', null,
-    () => page.getByRole('button', { name: 'Rohith Ranga', exact: true }));
+    () => page.getByRole('button', { name: 'Ranga Sharan Rohith', exact: true }));
 });

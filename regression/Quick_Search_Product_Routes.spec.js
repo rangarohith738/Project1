@@ -33,7 +33,7 @@ test('Verify Quick Search Product Routes @regression @set1', async ({ page }) =>
   // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -67,38 +67,62 @@ test('Verify Quick Search Product Routes @regression @set1', async ({ page }) =>
 
   await page.waitForLoadState('domcontentloaded');
 
-    const toggleMyne = page.locator('//label[normalize-space()="Mine"]//following::button[1]');
-    await toggleMyne.click();
-  
-    const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
-    await expect(filtersButton).toBeEnabled();
-    await filtersButton.click();
-   
-    const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-    await columnInput.click();
-   
-    const statusListItem = page.locator('li[data-label="Status"]').first();
-    await statusListItem.click();
-   
-    const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-    await expect(operatorInput).toBeEnabled();
-    await operatorInput.click();
-   
-    const containsListItem = page.locator('li[data-label="is"]');
-    await containsListItem.click();
-   
-    const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-    await expect(valueInput).toBeVisible();
-    await expect(valueInput).toBeEnabled();
-    await valueInput.click();
-    const requestedOption = page.locator('li[data-label="Requested"]');
-    await requestedOption.click();
-   
-    const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
-    await expect(applyButton).toBeEnabled();
-    await applyButton.click();
+  const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
+  await expect(filtersButton).toBeEnabled();
+  await filtersButton.click();
 
-    await expect(page.getByRole('button', { name: 'Filters 1', exact: true })).toBeVisible();
+  const columnSelect = page.locator("xpath=//option[normalize-space(.)='Column']/ancestor::select");
+  await columnSelect.click();
+  await columnSelect.selectOption("Requested By");
+
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.click();
+  await operatorSelect.selectOption("contains");
+
+  const valueSelect = page.getByPlaceholder('value');
+  await valueSelect.fill("Ranga Sharan Rohith");
+
+  const addAFilterButton = page.locator('p').filter({ hasText: 'Add A Filter' });
+  await addAFilterButton.click();
+
+  const columnSelect_2 = page.locator("xpath=//option[normalize-space(.)='Column']/ancestor::select").last();
+  await columnSelect_2.click();
+  await columnSelect_2.selectOption("status");
+
+  const operatorSelect_2 = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select").last();
+  await operatorSelect_2.click();
+  await operatorSelect_2.selectOption("is equal to");
+
+  const valueSelect_2 = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select").last();
+  await valueSelect_2.click();
+  await valueSelect_2.selectOption("requested");
+
+  const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
+  await expect(applyButton).toBeEnabled();
+  await applyButton.click();
+
+  await expect(page.getByRole('button', { name: 'Filters 2', exact: true })).toBeVisible();
+
+  const unassignedToggle = page.locator('//span[normalize-space()="Unassigned"]/..//div/button').first();
+  await expect(unassignedToggle).toBeVisible();
+  await expect(unassignedToggle).toBeEnabled();
+  const isOff = await unassignedToggle.evaluate(el => el.classList.contains('bg-gray-200'));
+  if (isOff) {
+    await unassignedToggle.click();
+  }
+  await expect(unassignedToggle).toHaveClass(/bg-denim-blue-600/);
+
+  const column10 = page.locator('//thead/tr/th[10]//following::tbody/tr/td[10]/div//span');
+  const column10Text = await column10.allTextContents();
+  for (const text of column10Text) {
+    expect(text.trim()).toBe("Requested");
+  }
+
+  const column11 = page.locator('//thead/tr/th[11]//following::tbody/tr/td[11]/div');
+  const column11Text = await column11.allTextContents();
+  for (const text of column11Text) {
+    expect(text.trim()).toBe("Ranga Sharan Rohith");
+  }
 
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
   await expect(firstRfpCell).toBeVisible();
@@ -108,6 +132,9 @@ test('Verify Quick Search Product Routes @regression @set1', async ({ page }) =>
 
   const proposalTitleSpan = page.locator('span').filter({ hasText: `${rfpNumber} - Request for Proposal` }).first();
   await expect(proposalTitleSpan).toBeVisible();
+
+  const statusRequestedText = page.locator('div').filter({ hasText: 'Status Requested' }).first();
+  await expect(statusRequestedText).toBeVisible();
 
   const linksTabButton = page.locator('[data-cy="hub-tab-links"]');
   await expect(linksTabButton).toBeVisible();
@@ -128,79 +155,60 @@ test('Verify Quick Search Product Routes @regression @set1', async ({ page }) =>
   const chooseProductRoutesHeading = page.locator('h3').filter({ hasText: 'Choose Product Routes' }).first();
   await expect(chooseProductRoutesHeading).toBeVisible();
  
-  const checkbox7 = page.locator('[id="checkbox.input.7"]');
-  await expect(checkbox7).toBeVisible();
-  await checkbox7.check();
-  await expect(checkbox7).toBeChecked();
- 
-  const checkbox7Text = page.locator('//*[@id="checkbox.input.7"]//ancestor::tr/td[2]//span/span[1]');
-  const expectedText_7 =(await checkbox7Text.textContent()).trim();
-  console.log("checkbox7Text:", expectedText_7);
- 
-  await page.waitForTimeout(2000);
-  const checkbox11 = page.locator('[id="checkbox.input.11"]');
-  await expect(checkbox11).toBeVisible();
-  await checkbox11.check();
-  await expect(checkbox11).toBeChecked();
+  const checkbox1 = page.locator('input[name="selectedIds"]').nth(0);
+  await expect(checkbox1).toBeVisible();
+  await checkbox1.check();
+  await expect(checkbox1).toBeChecked();
 
-  const checkbox11Text = page.locator('//*[@id="checkbox.input.11"]//ancestor::tr/td[2]//span/span[1]');
-  const expectedText_11 = (await checkbox11Text.textContent()).trim();
-  console.log("checkbox11Text:", expectedText_11);
+  const expectedText_1 = (await checkbox1.locator('xpath=following-sibling::label').innerText()).trim();
+  console.log("checkbox1Text:", expectedText_1);
+
+  const checkbox2 = page.locator('input[name="selectedIds"]').nth(1);
+  await expect(checkbox2).toBeVisible();
+  await checkbox2.check();
+  await expect(checkbox2).toBeChecked();
+
+  const expectedText_2 = (await checkbox2.locator('xpath=following-sibling::label').innerText()).trim();
+  console.log("checkbox2Text:", expectedText_2);
 
   const continueButton = page.getByRole('button', { name: 'Continue', exact: true });
   await expect(continueButton).toBeEnabled();
   await continueButton.click();
- 
-  const saveLinksButton = page.getByRole('button', { name: 'Save Links', exact: true });
-  await expect(saveLinksButton).toBeEnabled();
-  await saveLinksButton.click();
-  await expect(page.locator('p').filter({ hasText: 'Linked routes updated.' }).first()).toBeVisible();
-  await expect(page.locator('td').filter({ hasText: expectedText_7 }).first()).toBeVisible();
-  await expect(page.locator('td').filter({ hasText: expectedText_11 }).first()).toBeVisible();
 
-  const quickSearchInput = page.locator('[data-cy="input"]');
-    await expect(quickSearchInput).toBeVisible();
-    await expect(quickSearchInput).toBeEditable();
-    await quickSearchInput.fill(expectedText_7);
-    await expect(page.locator('td').filter({ hasText: expectedText_7 }).first()).toBeVisible();
+  await expect(page.locator('p').filter({ hasText: 'Routes linked.' }).first()).toBeVisible();
+  await expect(page.locator('td').filter({ hasText: expectedText_1 }).first()).toBeVisible();
+  await expect(page.locator('td').filter({ hasText: expectedText_2 }).first()).toBeVisible();
 
+  const productRouteRows = page.locator('//h3[normalize-space()="Product Routes"]//following::table//thead/following-sibling::tbody/tr');
+  const quickSearchInput = page.locator('[data-cy="search-alt"] input[data-cy="input"][placeholder="Quick Search"]').first();
+  await expect(quickSearchInput).toBeVisible();
+  await expect(quickSearchInput).toBeEditable();
+  await quickSearchInput.fill(expectedText_1);
+  await expect(page.locator('td').filter({ hasText: expectedText_1 }).first()).toBeVisible();
+  await expect(productRouteRows).toHaveCount(1);
 
-    const rowCount_after= await page.locator('//thead/following-sibling::tbody/tr').count();
-    await expect(rowCount_after).toBe(1);
-    console.log("rowCount_after:", rowCount_after);
-
-    await quickSearchInput.clear();
-    await page.waitForTimeout(2000);
-
-    const rowCount_after_clear = await page.locator('//thead/following-sibling::tbody/tr').count();
-    await expect(rowCount_after_clear).toBe(2);
-    console.log("rowCount_after_clear:", rowCount_after_clear);
-  }else
-  {
+  await quickSearchInput.clear();
+  await page.waitForTimeout(2000);
+  await expect(productRouteRows).toHaveCount(2);
+  } else {
     const products = page.locator(
-        '//thead/following-sibling::tbody/tr/td[1]//div[contains(@class,"text-ellipsis")]'
-      ).first();
-      const productText = (await products.textContent()).trim();
+      '//h3[normalize-space()="Product Routes"]//following::table//thead/following-sibling::tbody/tr/td[1]//div[contains(@class,"text-ellipsis")]'
+    ).first();
+    const productText = (await products.textContent()).trim();
 
-      const rowCount_Before = await page.locator('//thead/following-sibling::tbody/tr').count();
-      console.log("rowCount_Before:", rowCount_Before);
-    
-    const quickSearchInput = page.locator('[data-cy="input"]');
+    const productRouteRows = page.locator('//h3[normalize-space()="Product Routes"]//following::table//thead/following-sibling::tbody/tr');
+    const rowCount_Before = await productRouteRows.count();
+    console.log("rowCount_Before:", rowCount_Before);
+
+    const quickSearchInput = page.locator('[data-cy="search-alt"] input[data-cy="input"][placeholder="Quick Search"]').first();
     await expect(quickSearchInput).toBeVisible();
-    await expect(quickSearchInput).toBeEditable();
+    await expect(quickSearchInput).toBeEditable();  
     await quickSearchInput.fill(productText);
     await expect(page.locator('td').filter({ hasText: productText }).first()).toBeVisible();
-   
-    await page.waitForTimeout(2000);
-    const rowCount_After = await page.locator('//thead/following-sibling::tbody/tr').count();
-    await expect(rowCount_After).toBe(1);
-    console.log("rowCount_After:", rowCount_After);
+    await expect(productRouteRows).toHaveCount(1);
 
     await quickSearchInput.clear();
     await page.waitForTimeout(2000);
-
-    const rowCount_after_clear_clear = await page.locator('//thead/following-sibling::tbody/tr').count();
-    await expect(rowCount_after_clear_clear).toBe(rowCount_Before);
-
+    await expect(productRouteRows).toHaveCount(rowCount_Before);
   }
 });

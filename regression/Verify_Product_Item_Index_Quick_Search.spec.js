@@ -49,7 +49,7 @@ test('Verify Product Item Index Quick Search @regression @set2', async ({ page }
   await expect(productItemsLabel).toBeVisible();
   await expect(productItemsLabel).toBeEnabled();
 
-  const activeOnlyLabel = page.locator('label').filter({ hasText: 'Active Only' }).first();
+  const activeOnlyLabel = page.locator('span').filter({ hasText: 'Active Only' }).first();
   await expect(activeOnlyLabel).toBeVisible();
   await expect(activeOnlyLabel).toBeEnabled();
 
@@ -74,7 +74,7 @@ test('Verify Product Item Index Quick Search @regression @set2', async ({ page }
   await expect(newProductItemLink).toBeVisible();
   await expect(newProductItemLink).toBeEnabled();
 
-  // Capture search terms from first row (parallel-safe; no hardcoded product keys)
+  // Capture search terms from first row 
   const firstProductCell = page.locator('//tbody//tr[1]//td[2]//p[1]');
   await expect(firstProductCell).toBeVisible();
   const firstCellText = (await firstProductCell.textContent() || '').trim();
@@ -83,11 +83,10 @@ test('Verify Product Item Index Quick Search @regression @set2', async ({ page }
   const customerPartSearch = parts[1] || parts[0] || '';
   console.log(`[data] productItemSearch: ${productItemSearch}, customerPartSearch: ${customerPartSearch}`);
 
-  const quickSearchInput = page.locator('[data-cy="input"]');
+  const quickSearchInput = page.locator('input[placeholder="Quick Search"][data-flux-control]');
   await expect(quickSearchInput).toBeVisible();
   await expect(quickSearchInput).toBeEnabled();
   await quickSearchInput.fill(productItemSearch);
-  await page.waitForLoadState('domcontentloaded');
 
   const productItemsDiv = page
     .locator('p')
@@ -96,17 +95,16 @@ test('Verify Product Item Index Quick Search @regression @set2', async ({ page }
 
   await expect(productItemsDiv).toBeVisible();
 
-  const productItemsRowCount = await page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]').count();
-  await expect(productItemsRowCount).toBe(1);
+  const productItemsRow = page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]');
+  await expect(productItemsRow).toHaveCount(1);
 
   await quickSearchInput.clear();
-  await page.waitForLoadState('domcontentloaded');
   await quickSearchInput.fill(customerPartSearch);
 
-  await page.waitForLoadState('domcontentloaded');
   const customerPartDiv = page
     .locator('p')
     .filter({ hasText: customerPartSearch })
     .first();
   await expect(customerPartDiv).toBeVisible();
+  await expect(productItemsRow).toHaveCount(1);
 });

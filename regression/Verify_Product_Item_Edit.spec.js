@@ -64,7 +64,7 @@ test('Verify Product Item Edit @regression @set2', async ({ page }) => {
   await editButton.click();
 
   // Edit the description textarea
-  const DescriptionTextarea = page.locator('//textarea[@id="productItem.description"]');
+  const DescriptionTextarea = page.locator('//textarea[@id="deliverableItem.description"]');
   await expect(DescriptionTextarea).toBeVisible();
   await expect(DescriptionTextarea).toBeEditable();
   await DescriptionTextarea.fill(testData.estimate);

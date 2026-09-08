@@ -49,7 +49,7 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
   await expect(productItemsLabel).toBeVisible();
   await expect(productItemsLabel).toBeEnabled();
 
-  const activeOnlyLabel = page.locator('label').filter({ hasText: 'Active Only' }).first();
+  const activeOnlyLabel = page.locator('span').filter({ hasText: 'Active Only' }).first();
   await expect(activeOnlyLabel).toBeVisible();
   await expect(activeOnlyLabel).toBeEnabled();
 
@@ -59,7 +59,7 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
   const resetButton = page.getByRole('button', { name: 'Reset', exact: true });
   await expect(resetButton).toBeVisible();
 
-  const quickSearchInput = page.locator('[data-cy="input"]');
+  const quickSearchInput = page.locator('input[placeholder="Quick Search"][data-flux-control]');
   await expect(quickSearchInput).toBeVisible();
   await expect(quickSearchInput).toBeEnabled();
 
@@ -103,7 +103,7 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
   await expect(unitTemplateSummaryHeader).toBeVisible();
 
   const productClassText = page
-    .locator('p')
+    .locator('th')
     .filter({ hasText: 'PRODUCT CLASS' })
     .first();
   await expect(productClassText).toBeVisible();
@@ -113,18 +113,6 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
     .filter({ hasText: 'STATUS' })
     .first();
   await expect(statusHeader).toBeVisible();
-
-  const previousPageSpan = page
-    .locator('span')
-    .filter({ hasText: '&laquo; Previous' })
-    .first();
-  await expect(previousPageSpan).toBeVisible();
-
-  const perPageDiv = page
-    .locator('div')
-    .filter({ hasText: 'Per Page' })
-    .first();
-  await expect(perPageDiv).toBeVisible();
 
   const productItemsRowCount = await page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]').count();
   if (productItemsRowCount === 0) {

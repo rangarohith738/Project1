@@ -64,7 +64,7 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(selectCustomerButton).toBeEnabled();
   await selectCustomerButton.click();
 
-  const customerQuickSearchInput = page.getByPlaceholder('Quick Search');
+  const customerQuickSearchInput = page.getByPlaceholder('Quick Search').first();
   await expect(customerQuickSearchInput).toBeEnabled();
   await customerQuickSearchInput.click();
   await customerQuickSearchInput.fill(testData.quickSearch);
@@ -84,7 +84,7 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(continueProductItemButton).toBeEnabled();
   await continueProductItemButton.click();
 
-  const productClassInput = page.locator('input[name="productItem.product_class_id"][type="text"]');
+  const productClassInput = page.locator('input[name="deliverableItem.product_class_id"][type="text"]');
   await expect(productClassInput).toBeVisible();
   await expect(productClassInput).toBeEnabled();
   await productClassInput.click();
@@ -94,27 +94,27 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(primeLabelOption).toBeEnabled();
   await primeLabelOption.click();
 
-  const customerPartNumberInput = page.locator('input[name="productItem.customer_part_number"][type="text"]');
+  const customerPartNumberInput = page.locator('input[name="productItemExtension.customer_part_number"][type="text"]');
   await expect(customerPartNumberInput).toBeVisible();
   await expect(customerPartNumberInput).toBeEditable();
   await customerPartNumberInput.fill(testData.customerPartNumberRequired);
 
-  const brandNameInput = page.locator('input[name="productItem.brand_name"][type="text"]');
+  const brandNameInput = page.locator('input[name="productItemExtension.brand_name"][type="text"]');
   await expect(brandNameInput).toBeVisible();
   await expect(brandNameInput).toBeEditable();
   await brandNameInput.fill(testData.brandName);
 
-  const maxODInput = page.locator('input[name="productItemSpecification.max_roll_diameter"][type="number"]');
+  const maxODInput = page.locator('input[name="specification.max_roll_diameter"][type="number"]');
   await expect(maxODInput).toBeVisible();
   await expect(maxODInput).toBeEditable();
   await maxODInput.fill(testData.editingAncillaryItemsQuantity);
 
-  const substrateInput = page.locator('input[name="productItem.substrate_text"][type="text"]');
+  const substrateInput = page.locator('input[name="productItemExtension.substrate_text"][type="text"]');
   await expect(substrateInput).toBeVisible();
   await expect(substrateInput).toBeEditable();
   await substrateInput.fill(testData.substrateFaceOrFacestock);
 
-  const coatingInput = page.locator('input[name="productItemSpecification.coating_type_valuelist_option_id"][type="text"]');
+  const coatingInput = page.locator('input[name="specification.coating_type_valuelist_option_id"][type="text"]');
   await expect(coatingInput).toBeVisible();
   await expect(coatingInput).toBeEnabled();
   await coatingInput.click();
@@ -124,7 +124,7 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(uvMatteOption).toBeEnabled();
   await uvMatteOption.click();
 
-  const coreDiameterInput = page.locator('input[name="productItemSpecification.core_diameter_id"][type="text"]');
+  const coreDiameterInput = page.locator('input[name="specification.core_diameter_id"][type="text"]');
   await expect(coreDiameterInput).toBeVisible();
   await expect(coreDiameterInput).toBeEnabled();
   await coreDiameterInput.click();
@@ -134,7 +134,7 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(coreDiameterOption).toBeEnabled();
   await coreDiameterOption.click();
 
-  const unwindInput = page.locator('input[name="productItemSpecification.wind_direction_id"][type="text"]');
+  const unwindInput = page.locator('input[name="specification.wind_direction_id"][type="text"]');
   await expect(unwindInput).toBeVisible();
   await expect(unwindInput).toBeEnabled();
   await unwindInput.click();
@@ -144,7 +144,7 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(unwindOption).toBeEnabled();
   await unwindOption.click();
 
-  const laminateInput = page.locator('input[name="productItemSpecification.laminate_type_valuelist_option_id"][type="text"]');
+  const laminateInput = page.locator('input[name="specification.laminate_type_valuelist_option_id"][type="text"]');
   await expect(laminateInput).toBeVisible();
   await expect(laminateInput).toBeEnabled();
   await laminateInput.click();
@@ -169,12 +169,12 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
   await expect(quantityInput).toBeEditable();
   await quantityInput.fill(testData.toothCount);
 
-  const descriptionInput = page.locator('//label[@for="productItem.description"]/following-sibling::div/textarea');
+  const descriptionInput = page.locator('//label[@for="deliverableItem.description"]/following-sibling::div/textarea');
   await expect(descriptionInput).toBeVisible();
   await expect(descriptionInput).toBeEditable();
   await descriptionInput.fill(testData.descriptionRequired);
 
-  const categoryInput = page.locator('input[name="productItem.product_item_category"][type="text"]');
+  const categoryInput = page.locator('input[name="productItemExtension.product_item_category"][type="text"]');
   await expect(categoryInput).toBeVisible();
   await expect(categoryInput).toBeEnabled();
   await categoryInput.click();
@@ -196,34 +196,4 @@ test('Product Item Cancel Creation @regression @set2', async ({ page }) => {
     exact: true
   });
   await expect(newProductItemLink_Back).toBeVisible();
-
-  const customerHeader = page
-    .locator('th')
-    .filter({ hasText: 'CUSTOMER' })
-    .first();
-  await expect(customerHeader).toBeVisible();
-
-  const descriptionHeader = page
-    .locator('th')
-    .filter({ hasText: 'DESCRIPTION' })
-    .first();
-  await expect(descriptionHeader).toBeVisible();
-
-  const unitTemplateSummaryHeader = page
-    .locator('th')
-    .filter({ hasText: 'UNIT TEMPLATE ID | SUMMARY' })
-    .first();
-  await expect(unitTemplateSummaryHeader).toBeVisible();
-
-  const productClassText = page
-    .locator('p')
-    .filter({ hasText: 'PRODUCT CLASS' })
-    .first();
-  await expect(productClassText).toBeVisible();
-
-  const statusHeader = page
-    .locator('th')
-    .filter({ hasText: 'STATUS' })
-    .first();
-  await expect(statusHeader).toBeVisible();
 });

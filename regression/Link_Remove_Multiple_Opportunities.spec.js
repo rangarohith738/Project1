@@ -93,33 +93,91 @@ test('Link Remove Multiple Opportunities @regression @set2', async ({ page }) =>
   await expect(opportunityAdded1).toBeVisible();
   await page.reload();
   await page.waitForLoadState('domcontentloaded');
-
-  // --- Link second opportunity (row 2) ---
-  await expect(chooseOpportunitiesButton).toBeEnabled();
-  await chooseOpportunitiesButton.click();
-  await page.waitForTimeout(2000);
-
-  const secondOpportunityNameCell = page.locator('(//tbody//tr[2]//td[3]//div)[2]').first();
-  await expect(secondOpportunityNameCell).toBeVisible();
-  const opportunityName2 = (await secondOpportunityNameCell.textContent() || '').trim();
-  console.log(`[data] opportunityName2: ${opportunityName2}`);
-  await secondOpportunityNameCell.click();
-
-  const secondOppCodeCell = page.locator('(//tbody//tr[2]//td[2]//div)[2]').first();
-  await expect(secondOppCodeCell).toBeVisible();
-  const opportunityId2 = (await secondOppCodeCell.textContent() || '').trim();
-  console.log(`[data] opportunityId2: ${opportunityId2}`);
-  await page.waitForTimeout(2000);
-
-  await expect(continueButton).toBeEnabled();
-  await continueButton.click();
-
-  const opportunityAdded2 = page.locator('//span[@x-tooltip="' + opportunityId2 + '"]').first();
-  await expect(opportunityAdded2).toBeVisible();
   await expect(opportunityAdded1).toBeVisible();
 
+  // --- Create second opportunity (New Opportunity) ---
+  const newOpportunityButton = page.getByRole('button', { name: 'New Opportunity', exact: true }).first();
+  await expect(newOpportunityButton).toBeEnabled();
+  await newOpportunityButton.click();
+
+  const nameRequiredInput = page.locator('input[name="project.name"][type="text"]').first();
+  await expect(nameRequiredInput).toBeVisible();
+  await expect(nameRequiredInput).toBeEditable();
+  await nameRequiredInput.fill(session.nameRequired);
+
+  const newOpportunityHeading = page.getByRole('heading', { name: 'New Opportunity', exact: true }).first();
+  await expect(newOpportunityHeading).toBeVisible();
+
+  const formTab = page.locator('div').filter({ hasText: /^Form$/ }).first();
+  await expect(formTab).toBeVisible();
+  await expect(formTab).toBeEnabled();
+  await formTab.click();
+
+  const duplicateCheckTab = page.locator('div').filter({ hasText: /^Duplicate check$/ }).first();
+  await expect(duplicateCheckTab).toBeVisible();
+  await expect(duplicateCheckTab).toBeEnabled();
+  await duplicateCheckTab.click();
+
+  const previewTab = page.locator('div').filter({ hasText: /^Preview$/ }).first();
+  await expect(previewTab).toBeVisible();
+  await expect(previewTab).toBeEnabled();
+  await previewTab.click();
+
+  const linkedCustomer = page.locator('p').filter({ hasText: 'Charles Lecrec' }).first();
+  await expect(linkedCustomer).toBeVisible();
+
+  const createContinueButton = page.getByRole('button', { name: 'Continue to Opportunity', exact: true }).first();
+  await expect(createContinueButton).toBeEnabled();
+  await createContinueButton.click();
+
+  await expect(duplicateCheckTab).toBeVisible();
+
+  const yesAddRecordButton = page.getByRole('button', { name: 'Yes, add record', exact: true }).first();
+  await expect(yesAddRecordButton).toBeEnabled();
+  await yesAddRecordButton.click();
+
+  await page.waitForLoadState('domcontentloaded');
+
+  const opportunityShowHeading = page.locator('#info-project').first();
+  await expect(opportunityShowHeading).toBeVisible();
+  const opportunityShowText = (await opportunityShowHeading.innerText()).trim();
+  const opportunityId2Match = opportunityShowText.match(/OPP\d+/);
+  const opportunityId2 = opportunityId2Match ? opportunityId2Match[0] : opportunityShowText.split('-')[0].trim();
+  console.log(`[data] opportunityId2: ${opportunityId2}`);
+
+  // --- Back to the same Product Item ---
+  await expect(itemsMenuButton).toBeEnabled();
+  await itemsMenuButton.click();
+  await expect(productItemsLink).toBeVisible();
+  await expect(productItemsLink).toBeEnabled();
+  await productItemsLink.click();
+
+  await page.waitForLoadState('domcontentloaded');
+  await expect(page.getByRole('main').getByText('Product Items')).toBeVisible();
+
+  const productItemQuickSearch = page.locator('input[placeholder="Quick Search"][data-flux-control]').first();
+  await expect(productItemQuickSearch).toBeVisible();
+  await expect(productItemQuickSearch).toBeEnabled();
+  await productItemQuickSearch.fill(firstProductItemText);
+  await expect(page.locator('p').filter({ hasText: firstProductItemText }).first()).toBeVisible();
+
+  const searchedProductItem = page.locator('//tbody//tr[1]//td[2]//p[1]').first();
+  await expect(searchedProductItem).toBeVisible();
+  await searchedProductItem.click();
+
+  await page.waitForTimeout(2000);
+  await expect(productItemDetailHeading).toBeVisible();
+
+  await expect(linksTabButton).toBeEnabled();
+  await linksTabButton.click();
+
+  const opportunityAdded1Again = page.locator('//span[@x-tooltip="' + opportunityId1 + '"]').first();
+  const opportunityAdded2 = page.locator('//span[@x-tooltip="' + opportunityId2 + '"]').first();
+  await expect(opportunityAdded1Again).toBeVisible();
+  await expect(opportunityAdded2).toBeVisible();
+
   // --- Remove only opportunityId1 (added in this test) ---
-  await opportunityAdded1.click();
+  await opportunityAdded1Again.click();
   const removeLink = page.locator('//div[normalize-space()="' + opportunityId1 + '"]//following-sibling::div//button[@x-tooltip="Remove"]').first();
   await expect(removeLink).toBeVisible();
   await expect(removeLink).toBeEnabled();

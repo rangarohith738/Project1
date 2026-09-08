@@ -53,10 +53,8 @@ test('Create Prepress from product item @regression', async ({ page }) => {
   await heal(page, 'new prepress request button', 'click', null,
     () => page.getByRole('button', { name: 'New Prepress Request', exact: true }));
 
-  await page.waitForLoadState('domcontentloaded');
-
   await heal(page, 'prepress success message', 'visible', null,
-    () => page.locator('p').filter({ hasText: /^Prepress Request Created Successfully$/ }).first());
+    () => page.getByText('Prepress Request Created Successfully', { exact: true }));
 
   await heal(page, 'request number span', 'visible', null,
     () => page.locator('span').filter({ hasText: /^Request #PPR2768$/ }).first());

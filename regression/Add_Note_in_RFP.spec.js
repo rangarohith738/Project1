@@ -3,7 +3,7 @@ import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../helpers/sessionData');
 
-test('Add Note in RFP @regression @set1', async ({ page }) => {
+test('Add Note in RFP @regression @set1 @demo', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
@@ -33,7 +33,7 @@ test('Add Note in RFP @regression @set1', async ({ page }) => {
   // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -67,7 +67,7 @@ test('Add Note in RFP @regression @set1', async ({ page }) => {
 
   await page.waitForLoadState('domcontentloaded');
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
@@ -103,7 +103,7 @@ test('Add Note in RFP @regression @set1', async ({ page }) => {
   const alertSummaryDiv = page.locator('div').filter({ hasText: 'ALERT DATE CREATED DATE MODIFIED CREATED BY NOTES' }).first();
   await expect(alertSummaryDiv).toBeVisible();
 
-  const rohithRangaDiv = page.locator('div').filter({ hasText: 'Rohith Ranga' }).first();
+  const rohithRangaDiv = page.locator('div').filter({ hasText: 'Ranga Sharan Rohith' }).first();
   await expect(rohithRangaDiv).toBeVisible();
   await expect(rohithRangaDiv).toBeEnabled();
 });

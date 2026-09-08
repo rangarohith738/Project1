@@ -44,7 +44,7 @@ test('Verify Active Only toggle filters Product Items @regression @set2', async 
   await expect(page.getByRole('main').getByText('Product Items')).toBeVisible();
 
   const activeOnlyToggle = page.locator(
-    '//label[normalize-space()="Active Only"]/following-sibling::button'
+    '//span[normalize-space()="Active Only"]//following::button[1]'
   );
 
   const isActiveOnlyEnabled = await activeOnlyToggle.evaluate((button) =>

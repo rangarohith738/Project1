@@ -81,7 +81,7 @@ test('Add Note in Product Item @regression @set2', async ({ page }) => {
   const alertSummaryDiv = page.locator('div').filter({ hasText: 'ALERT DATE CREATED DATE MODIFIED CREATED BY NOTES' }).first();
   await expect(alertSummaryDiv).toBeVisible();
 
-  const rohithRangaDiv = page.locator('div').filter({ hasText: 'Rohith Ranga' }).first();
+  const rohithRangaDiv = page.locator('div').filter({ hasText: 'Ranga Sharan Rohith' }).first();
   await expect(rohithRangaDiv).toBeVisible();
   await expect(rohithRangaDiv).toBeEnabled();
 });

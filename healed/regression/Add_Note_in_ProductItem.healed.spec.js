@@ -73,10 +73,10 @@ test('Verify Notes can be added to the Product Item @regression', async ({ page 
     () => page.locator('div').filter({ hasText: /^8\/25\/26$/ }).first());
 
   await heal(page, 'rohith ranga div', 'click', null,
-    () => page.locator('div').filter({ hasText: /^Rohith Ranga$/ }).first());
+    () => page.locator('div').filter({ hasText: /^Ranga Sharan Rohith$/ }).first());
 
   await heal(page, 'rohith ranga span', 'click', null,
-    () => page.locator('span').filter({ hasText: /^Rohith Ranga$/ }).first());
+    () => page.locator('span').filter({ hasText: /^Ranga Sharan Rohith$/ }).first());
 
   await heal(page, 'note text paragraph', 'visible', null,
     () => page.locator('p').filter({ hasText: /^Test123$/ }).first());

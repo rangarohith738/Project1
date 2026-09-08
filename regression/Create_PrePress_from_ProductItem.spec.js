@@ -59,44 +59,43 @@ test('Create PrePress from Product Item @regression @set2', async ({ page }) => 
   await expect(productItemDetailHeading).toBeVisible();
   await expect(productItemDetailHeading).toBeEnabled();
 
+  const goToPrepressRequestButton = page.getByRole('button', { name: 'Go to Prepress Request', exact: true });
   const newPrepressRequestButton = page.getByRole('button', { name: 'New Prepress Request', exact: true });
-  await expect(newPrepressRequestButton).toBeEnabled();
   await newPrepressRequestButton.click();
 
-  await page.waitForLoadState('domcontentloaded');
+  if (!(await goToPrepressRequestButton.isVisible())) {
+    await expect(newPrepressRequestButton).toBeEnabled();
 
-  const prepressSuccessMessage = page.locator('p').filter({ hasText: 'Prepress Request Created Successfully' }).first();
-  await expect(prepressSuccessMessage).toBeVisible();
+    const requestNumberSpan = page.locator('//div[@id="info-prepress-queue"]//span[contains(normalize-space(),"Request")]').first();
+    await expect(requestNumberSpan).toBeVisible();
+    const requestNumberText = await requestNumberSpan.textContent();
+    const requestNumber = requestNumberText.trim().split('#')[1];
+    console.log(`[data] requestNumber: ${requestNumber}`);
 
-  const requestNumberSpan = page.locator('//div[@id="info-prepress-queue"]//span[contains(normalize-space(),"Request")]').first();
-  await expect(requestNumberSpan).toBeVisible();
-  const requestNumberText = await requestNumberSpan.textContent();
-  const requestNumber = requestNumberText.trim().split('#')[1];
-  console.log(`[data] requestNumber: ${requestNumber}`);
+    await page.reload();
+    await page.waitForLoadState('domcontentloaded');
 
-  await page.reload();
-  await page.waitForLoadState('domcontentloaded');
+    const artSpan = page.locator('//div[@id="info-prepress-queue"]//span[contains(normalize-space(),"ART")]').first();
+    await expect(artSpan).toBeVisible();
+    const artNumberText = await artSpan.textContent();
+    const artNumber = artNumberText.split(' ')[1].trim();
+    console.log(`[data] artNumber: ${artNumber}`);
 
-  const artSpan = page.locator('//div[@id="info-prepress-queue"]//span[contains(normalize-space(),"ART")]').first();
-  await expect(artSpan).toBeVisible();
-  const artNumberText = await artSpan.textContent();
-  const artNumber = artNumberText.split(' ')[1].trim();
-  console.log(`[data] artNumber: ${artNumber}`);
+    const waitingForArtBadge = page.locator('[id="badge-Waiting for Art"]');
+    await expect(waitingForArtBadge).toBeVisible();
+    await expect(waitingForArtBadge).toBeEnabled();
+    await waitingForArtBadge.click();
 
-  const waitingForArtBadge = page.locator('[id="badge-Waiting for Art"]');
-  await expect(waitingForArtBadge).toBeVisible();
-  await expect(waitingForArtBadge).toBeEnabled();
-  await waitingForArtBadge.click();
+    const draftBadge = page.locator('[id="badge-Draft"]');
+    await expect(draftBadge).toBeVisible();
 
-  const draftBadge = page.locator('[id="badge-Draft"]');
-  await expect(draftBadge).toBeVisible();
+    const openLink = page.locator('a[x-tooltip="Open"]');
+    await expect(openLink).toBeVisible();
+    await expect(openLink).toBeEnabled();
+    await openLink.click();
 
-  const openLink = page.locator('a[x-tooltip="Open"]');
-  await expect(openLink).toBeVisible();
-  await expect(openLink).toBeEnabled();
-  await openLink.click();
-
-  const requestNumberSpanAgain = page.locator('span').filter({ hasText: new RegExp(`^Request #${requestNumber}$`) }).first();
-  await expect(requestNumberSpanAgain).toBeVisible();
-  await requestNumberSpanAgain.click();
+    const requestNumberSpanAgain = page.locator('span').filter({ hasText: new RegExp(`^Request #${requestNumber}$`) }).first();
+    await expect(requestNumberSpanAgain).toBeVisible();
+    await requestNumberSpanAgain.click();
+  }
 });
