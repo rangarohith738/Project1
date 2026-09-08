@@ -73,10 +73,11 @@ test('Add Note in RFP @regression @set1 @demo', async ({ page }) => {
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
   await expect(firstRfpCell).toBeVisible();
   const rfpNumber = (await firstRfpCell.innerText()).trim();
+  console.log(`[data] rfpNumber: ${rfpNumber}`);
   await firstRfpCell.click();
   await page.waitForTimeout(2000);
 
-  const proposalTitleSpan = page.locator('span').filter({ hasText: `${rfpNumber} - Request for Proposal` }).first();
+  const proposalTitleSpan =  page.getByText(`${rfpNumber} - Request for Proposal`).first();
   await expect(proposalTitleSpan).toBeVisible();
 
   const notesHeading = page.locator('h3').filter({ hasText: 'Notes' }).first();
