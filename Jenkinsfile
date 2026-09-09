@@ -31,8 +31,8 @@ pipeline {
   stages {
     stage('Install') {
       steps {
-        powershell 'npm ci'
-        powershell 'npx playwright install'
+        sh 'npm ci'
+        sh 'npx playwright install --with-deps'
       }
     }
 
@@ -49,7 +49,7 @@ pipeline {
           if (headedArg) {
             command = command + ' ' + headedArg
           }
-          powershell(command)
+          sh command
         }
       }
     }
