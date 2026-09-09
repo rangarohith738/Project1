@@ -30,5 +30,6 @@ module.exports = {
     'toothCount',
     'itemDefaultCost',
     'itemDefaultPrice',
+    'estimate',
   ],
 };

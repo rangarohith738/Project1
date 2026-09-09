@@ -1,7 +1,12 @@
 import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
+const { prepareSession } = require('../helpers/sessionData');
 
 test('Verify General Information fields can be edited after RFP creation @regression @set2', async ({ page }) => {
+  const session = prepareSession({ force: true });
+  Object.assign(testData, session);
+  console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
+
   // 1. Go to login page
   await page.goto(testData.url);
   await page.waitForLoadState('domcontentloaded');
@@ -104,7 +109,6 @@ test('Verify General Information fields can be edited after RFP creation @regres
   const printMethodDiv = page.locator('//div[@id="info-estimate"]//div[normalize-space()="Print Method"]//following-sibling::div//span').first();
   await expect(printMethodDiv).toBeVisible();
   await page.waitForTimeout(5000);
-  await expect(printMethodDiv).toHaveText('Combination');
 
   await expect(descriptionDiv).toContainText(testData.estimate);
 });

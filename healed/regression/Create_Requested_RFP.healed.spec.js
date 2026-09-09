@@ -47,10 +47,10 @@ test('Creation of Requested RFP @regression @set1', async ({ page }) => {
   await heal(page, 'Select Customer button', 'click', null,
     () => page.getByRole('button', { name: 'Select Customer', exact: true }));
 
-  await heal(page, 'Quick Search input', 'visible', null,
-    () => page.getByPlaceholder('Quick Search').first());
-  await heal(page, 'Quick Search input', 'fill', testData.quickSearch,
-    () => page.getByPlaceholder('Quick Search').first());
+  await heal(page, 'Customer Quick Search input', 'visible', null,
+    () => page.getByPlaceholder('Quick Search'));
+  await heal(page, 'Customer Quick Search input', 'fill', testData.quickSearch,
+    () => page.getByPlaceholder('Quick Search'));
 
   await heal(page, 'Customer cell Charles Lecrec', 'visible', null,
     () => page.locator('td').filter({ hasText: 'Charles Lecrec' }).first());
@@ -115,7 +115,6 @@ test('Creation of Requested RFP @regression @set1', async ({ page }) => {
     () => page.locator('input[name="estimate.max_colors_to_quote"][type="text"]'));
   await heal(page, 'Max colors input', 'click', null,
     () => page.locator('input[name="estimate.max_colors_to_quote"][type="text"]'));
-  // Retry-open if the "2" option isn't visible after first click
   {
     const sixColorsOption = page.locator('li[data-label="2"]');
     if (!(await sixColorsOption.isVisible())) {
@@ -259,20 +258,21 @@ test('Creation of Requested RFP @regression @set1', async ({ page }) => {
   await heal(page, 'Choose Unit Templates button', 'click', null,
     () => page.getByRole('button', { name: 'Choose Unit Templates', exact: true }));
 
+  await page.waitForTimeout(3000);
+
   await heal(page, 'Unit template Quick Search input', 'fill', testData.unitTemplatePicker,
-    () => page.getByPlaceholder('Quick Search'));
+    () => page.locator('input[placeholder="Quick Search"][data-flux-control]'));
 
   await heal(page, 'UTM12991 div', 'visible', null,
     () => page.locator('div').filter({ hasText: 'UTM12991' }).first());
   await heal(page, 'UTM12991 div', 'click', null,
     () => page.locator('div').filter({ hasText: 'UTM12991' }).first());
-
+ await page.waitForTimeout(3000);
   await heal(page, 'Continue button (unit template picker)', 'click', null,
     () => page.locator('//h3[normalize-space()="Choose Unit-Template-Picker"]//ancestor::div[4]//span[normalize-space()="Continue"]'));
 
   await heal(page, 'Create Request for Proposal button', 'click', null,
     () => page.getByRole('button', { name: 'Create Request for Proposal', exact: true }));
-
-  await heal(page, 'RFP success message', 'visible', null,
-    () => page.getByText('Request for Proposal created successfully.', { exact: true }));
+     await page.waitForTimeout(5000);
+  await expect(page.getByText('Request for Proposal created successfully.', { exact: true })).toBeVisible({ timeout: 30000 });
 });

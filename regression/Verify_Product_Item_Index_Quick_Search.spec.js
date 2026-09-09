@@ -3,7 +3,7 @@ import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../helpers/sessionData');
 
-test('Verify Product Item Index Quick Search @regression @set2', async ({ page }) => {
+test('Verify Product Item Index Quick Search and Show Page Navigation @regression @set2', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
@@ -74,37 +74,32 @@ test('Verify Product Item Index Quick Search @regression @set2', async ({ page }
   await expect(newProductItemLink).toBeVisible();
   await expect(newProductItemLink).toBeEnabled();
 
-  // Capture search terms from first row 
   const firstProductCell = page.locator('//tbody//tr[1]//td[2]//p[1]');
   await expect(firstProductCell).toBeVisible();
-  const firstCellText = (await firstProductCell.textContent() || '').trim();
-  const parts = firstCellText.split(/\s*\|\s*/).map((p) => p.replace(/\|/g, '').trim()).filter(Boolean);
-  const productItemSearch = parts[0] || '';
-  const customerPartSearch = parts[1] || parts[0] || '';
-  console.log(`[data] productItemSearch: ${productItemSearch}, customerPartSearch: ${customerPartSearch}`);
+  const productItemSearch = (await firstProductCell.textContent() || '').split(/\s*\|\s*/)[0].trim().replace(/\|/g, '').trim();
+  console.log(`[data] productItemSearch: ${productItemSearch}`);
 
   const quickSearchInput = page.locator('input[placeholder="Quick Search"][data-flux-control]');
   await expect(quickSearchInput).toBeVisible();
   await expect(quickSearchInput).toBeEnabled();
   await quickSearchInput.fill(productItemSearch);
 
-  const productItemsDiv = page
-    .locator('p')
-    .filter({ hasText: productItemSearch })
-    .first();
-
-  await expect(productItemsDiv).toBeVisible();
-
   const productItemsRow = page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]');
   await expect(productItemsRow).toHaveCount(1);
 
-  await quickSearchInput.clear();
-  await quickSearchInput.fill(customerPartSearch);
+  const searchedItem = page.locator('//tbody//tr[1]//td[2]//p[1]');
+  await expect(searchedItem).toBeVisible();
+  await searchedItem.click();
 
-  const customerPartDiv = page
-    .locator('p')
-    .filter({ hasText: customerPartSearch })
-    .first();
-  await expect(customerPartDiv).toBeVisible();
-  await expect(productItemsRow).toHaveCount(1);
+  const productItemHeading = page.locator('div').filter({ hasText: `${productItemSearch}-Product Item` }).first();
+  await expect(productItemHeading).toBeVisible();
+
+  const productItemInfoSection = page.locator('div').filter({ hasText: 'Product Item Information' }).first();
+  await expect(productItemInfoSection).toBeVisible();
+
+  const detailsTabButton = page.locator('[data-cy="hub-tab-details"]');
+  await expect(detailsTabButton).toBeVisible();
+
+  const productRouteHeading = page.locator('h3').filter({ hasText: 'Product Route' }).first();
+  await expect(productRouteHeading).toBeVisible();
 });

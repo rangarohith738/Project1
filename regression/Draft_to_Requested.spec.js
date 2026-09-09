@@ -1,8 +1,13 @@
 // StatusChangeFromDraft_to_Requested
 import testData from '../test-data.json';
 import { test, expect } from '@playwright/test';
+const { prepareSession } = require('../helpers/sessionData');
 
 test('Draft to Requested @regression @set1', async ({ page}) => {
+  const session = prepareSession({ force: true });
+  Object.assign(testData, session);
+  console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
+
   // Initial navigation and login
   await page.goto(testData.url);
 
@@ -62,10 +67,11 @@ test('Draft to Requested @regression @set1', async ({ page}) => {
 
   await page.waitForLoadState('domcontentloaded');
 
-const toggleMyne = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
-await toggleMyne.click();
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
+  await expect(mineFilter).toBeVisible();
+  await mineFilter.click();
 
-const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
+  const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
   await expect(filtersButton).toBeEnabled();
   await filtersButton.click();
 
@@ -82,13 +88,17 @@ const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true 
   await expect(applyButton).toBeEnabled();
   await applyButton.click();
 
-  //Assertion Applying Filters
   await expect(page.getByRole('button', { name: 'Filters 1', exact: true })).toBeVisible();
- 
-  const draftCell = page.locator('td').filter({ hasText: 'Draft' }).first();
-  await expect(draftCell).toBeVisible();
-  await draftCell.click();
- 
+
+  const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
+  await expect(firstRfpCell).toBeVisible();
+  const rfpNumber = (await firstRfpCell.innerText()).trim();
+  await firstRfpCell.click();
+  await page.waitForTimeout(2000);
+
+  const proposalTitleSpan = page.locator('span').filter({ hasText: `${rfpNumber} - Request for Proposal` }).first();
+  await expect(proposalTitleSpan).toBeVisible();
+
   const statusDraftDiv = page.locator('div').filter({ hasText: 'Status Draft' }).first();
   await expect(statusDraftDiv).toBeVisible();
   await expect(statusDraftDiv).toBeEnabled();

@@ -4,9 +4,9 @@ import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../helpers/sessionData');
 
 test('Add Option Charges in RFP @regression @set2 @demo', async ({ page }) => {
-  const session = prepareSession({ force: false });
+  const session = prepareSession({ force: true });
   Object.assign(testData, session);
-  console.log(`[data] Reusing session → nameRequired: ${session.nameRequired}`);
+  console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
 
   // Initial navigation and login
   await page.goto(testData.url);

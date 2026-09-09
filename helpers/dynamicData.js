@@ -28,6 +28,7 @@ function generateDynamicFields() {
     toothCount: String(faker.number.int({ min: 1, max: 99 })),
     itemDefaultCost: String(faker.number.int({ min: 11, max: 99 })),
     itemDefaultPrice: String(faker.number.int({ min: 101, max: 999 })),
+    estimate: faker.lorem.sentence(),
   };
 }
 
