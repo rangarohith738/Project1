@@ -1,13 +1,10 @@
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
-const { prepareSession } = require('../../helpers/sessionData');
+const { generateDynamicFields } = require('../../helpers/dynamicData');
 
-test('Adding Opportunity plant @regression', async ({ page }) => {
-  const session = prepareSession({ force: false });
-  Object.assign(testData, session);
-  if (session.opportunityName) testData.nameRequired = session.opportunityName;
+test('Cancel opportunity creation via close drawer @regression', async ({ page }) => {
+  const { opportunityName, projectDescription } = generateDynamicFields();
 
-  // 1. Go to login page
   await page.goto(testData.url);
   await page.waitForLoadState('domcontentloaded');
 
@@ -25,11 +22,14 @@ test('Adding Opportunity plant @regression', async ({ page }) => {
   await expect(passwordInput).toBeEditable();
   await passwordInput.fill(testData.password);
 
-  const confirmLoginButton = page.locator('[data-cy="btnLoginConfirm"]');
-  await expect(confirmLoginButton).toBeEnabled();
-  await confirmLoginButton.click();
+  const signInConfirmButton = page.locator('[data-cy="btnLoginConfirm"]');
+  await expect(signInConfirmButton).toBeEnabled();
+  await signInConfirmButton.click();
 
-  const btn=page.locator('(//button[normalize-space()="Customer"])[1]')
+  await page.waitForLoadState('domcontentloaded');
+
+  const btn = page.locator('(//button[normalize-space()="Customer"])[1]');
+  await expect(btn).toBeEnabled();
   await btn.click();
 
   const opportunitiesLink = page.getByRole('link', { name: 'Opportunities', exact: true });
@@ -44,60 +44,58 @@ test('Adding Opportunity plant @regression', async ({ page }) => {
   const projectNameInput = page.locator('input[name="project.name"][type="text"]');
   await expect(projectNameInput).toBeVisible();
   await expect(projectNameInput).toBeEditable();
-  await projectNameInput.fill(testData.nameRequired);
+  await projectNameInput.fill(opportunityName);
 
   const projectDescriptionInput = page.locator('textarea[name="project.description"]');
   await expect(projectDescriptionInput).toBeVisible();
   await expect(projectDescriptionInput).toBeEditable();
-  await projectDescriptionInput.fill(testData.projectDescription);
+  await projectDescriptionInput.fill(projectDescription);
 
   const selectCustomerButton = page.getByRole('button', { name: 'Select Customer', exact: true });
   await expect(selectCustomerButton).toBeEnabled();
   await selectCustomerButton.click();
 
-  const quickSearchInput = page.getByPlaceholder('Quick Search');
+  const quickSearchInput = page.locator("//span[normalize-space()='Customer Only']/ancestor::div[3]//input[@placeholder='Quick Search']");
   await expect(quickSearchInput).toBeVisible();
-  // await expect(quickSearchInput).toBeEditable();
+  await expect(quickSearchInput).toBeEditable();
   await quickSearchInput.fill(testData.quickSearch);
 
   const charlesLecrecCell = page.locator('td').filter({ hasText: 'Charles Lecrec' }).first();
   await expect(charlesLecrecCell).toBeVisible();
   await expect(charlesLecrecCell).toBeEnabled();
+  await page.waitForTimeout(4000);
   await charlesLecrecCell.click();
 
-  const charlesLecrecSpan = page.locator('span').filter({
-  hasText: /Charles Lecrec/
-}).first();
-  await expect(charlesLecrecSpan).toBeVisible();
-  await expect(charlesLecrecSpan).toBeEnabled();
-  await charlesLecrecSpan.click();
-
-  // 15. "Unlink" button visible
   const unlinkButton = page.getByRole('button', { name: 'Unlink', exact: true });
   await expect(unlinkButton).toBeVisible();
+  await expect(unlinkButton).toBeEnabled();
 
-  // 16. "Continue" button visible and click
-  const continueButton = page.getByRole('button', { name: 'Continue', exact: true });
+  const continueButton = page.getByRole('button', { name: 'Continue', exact: true }).first();
   await expect(continueButton).toBeVisible();
   await expect(continueButton).toBeEnabled();
   await continueButton.click();
 
-  // 17. "Charles Lecrec" button visible
-  const charlesLecrecButton = page.getByRole('button', { name: 'Charles Lecrec', exact: true });
-  await expect(charlesLecrecButton).toBeVisible();
+  const selectedCustomerButton = page.getByRole('button', { name: 'Charles Lecrec', exact: true });
+  await expect(selectedCustomerButton).toBeVisible();
+  await expect(selectedCustomerButton).toBeEnabled();
 
-  // 18. "Cancel" button visible and click
-  const cancelButton = page.getByRole('button', { name: 'Cancel', exact: true });
-  await expect(cancelButton).toBeVisible();
-  await expect(cancelButton).toBeEnabled();
-  await cancelButton.click();
+  const closedDrawerButton = page.locator('//h2[normalize-space()="New Opportunity"]//parent::div/parent::div//span[text()="Close drawer"]');
+  await expect(closedDrawerButton).toBeVisible();
+  await expect(closedDrawerButton).toBeEnabled();
+  await page.waitForTimeout(3000);
+  await closedDrawerButton.click();
 
-  await expect(quickSearchInput).toBeVisible();
-  await quickSearchInput.fill(testData.nameRequired);
+  const discardChangesButton = page.locator('//button[normalize-space()="Discard changes"]').first();
+  await page.waitForTimeout(3000);
+  await expect(discardChangesButton).toBeVisible();
+  await expect(discardChangesButton).toBeEnabled();
+  await discardChangesButton.click();
+
+  const opportunitiesQuickSearchInput = page.getByPlaceholder('Quick Search');
+  await page.waitForTimeout(3000);
+  await expect(opportunitiesQuickSearchInput).toBeVisible();
+  await opportunitiesQuickSearchInput.fill(opportunityName);
 
   const noResultsCell = page.locator('td').filter({ hasText: /^No results found\.$/ }).first();
   await expect(noResultsCell).toBeVisible();
-
-  const showingZeroRecordsParagraph = page.locator('p').filter({ hasText: /^Showing 0 of 0 records$/ }).first();
-  await expect(showingZeroRecordsParagraph).toBeVisible();
 });

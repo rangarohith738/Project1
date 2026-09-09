@@ -1,9 +1,11 @@
-// Verify Estimate button when user is assigned
+// Covers both estimate-button workflows:
+// 1) Convert to Estimate is disabled until a user is assigned, then enabled
+// 2) Convert to Estimate creates a Draft estimate
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test('Verify Estimate Button When User Assigned @regression @set1', async ({ page }) => {
+test('Verify Estimate button enable and convert when user assigned @regression @set1', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
@@ -128,6 +130,7 @@ await assignedToListItem.click();
   const proposalTitleSpan = page.locator('span').filter({ hasText: `${rfpNumber} - Request for Proposal` }).first();
   await expect(proposalTitleSpan).toBeVisible();
 
+  // Workflow 1: button disabled when unassigned, enabled after assign
   const convertToEstimateButton_not_visible = page.locator('button').filter({ hasText: 'Convert to Estimate' });
   await expect(convertToEstimateButton_not_visible).not.toBeEnabled();
 
@@ -153,7 +156,8 @@ await assignedToListItem.click();
   await expect(convertToEstimateButton).toBeVisible();
   await expect(convertToEstimateButton).toBeEnabled();
 
-  convertToEstimateButton.click();
+  // Workflow 2: convert RFP to a Draft estimate
+  await convertToEstimateButton.click();
 
   const convertToEstimateModalText = page.locator('div').filter({ hasText: 'Convert to Estimate Are you sure you want to convert this Request for Proposal to an Estimate'}).first();
   await expect(convertToEstimateModalText).toBeVisible();
@@ -175,7 +179,7 @@ await assignedToListItem.click();
 
   const draftIcon = page.locator(
     '//span[normalize-space()="Draft"]/preceding-sibling::div/span/span[normalize-space()="01"]');
-  await expect(draftIcon).toBeVisible;
+  await expect(draftIcon).toBeVisible();
   await expect(draftIcon).toHaveCount(1);
  
 });
