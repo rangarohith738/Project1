@@ -1,9 +1,9 @@
-// Navigate Opportunity from Product Item (Links → Open → Opportunity show page)
+// Create PrePress from Product Item
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test('Navigate Opportunity from Product Item @regression @set2', async ({ page }) => {
+test('Create PrePress from Product Item @regression @set2', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
@@ -59,52 +59,43 @@ test('Navigate Opportunity from Product Item @regression @set2', async ({ page }
   await expect(productItemDetailHeading).toBeVisible();
   await expect(productItemDetailHeading).toBeEnabled();
 
-  const linksTabButton = page.locator('[data-cy="hub-tab-links"]');
-  await expect(linksTabButton).toBeEnabled();
-  await linksTabButton.click();
+  const goToPrepressRequestButton = page.getByRole('button', { name: 'Go to Prepress Request', exact: true });
+  const newPrepressRequestButton = page.getByRole('button', { name: 'New Prepress Request', exact: true });
+  await newPrepressRequestButton.click();
 
-  // Link one opportunity so Open is available
-  const chooseOpportunitiesButton = page.locator('//button[normalize-space()="Choose Opportunities"]').first();
-  await expect(chooseOpportunitiesButton).toBeEnabled();
-  await chooseOpportunitiesButton.click();
-  await page.waitForTimeout(2000);
+  if (!(await goToPrepressRequestButton.isVisible())) {
+    await expect(newPrepressRequestButton).toBeEnabled();
 
-  const firstOpportunityNameCell = page.locator('(//tbody//tr[1]//td[3]//div)[2]').first();
-  await expect(firstOpportunityNameCell).toBeVisible();
-  const opportunityName = (await firstOpportunityNameCell.textContent() || '').trim();
-  console.log(`[data] opportunityName: ${opportunityName}`);
-  await firstOpportunityNameCell.click();
+    const requestNumberSpan = page.locator('//div[@id="info-prepress-queue"]//span[contains(normalize-space(),"Request")]').first();
+    await expect(requestNumberSpan).toBeVisible();
+    const requestNumberText = await requestNumberSpan.textContent();
+    const requestNumber = requestNumberText.trim().split('#')[1];
+    console.log(`[data] requestNumber: ${requestNumber}`);
 
-  const oppCodeCell = page.locator('(//tbody//tr[1]//td[2]//div)[2]').first();
-  await expect(oppCodeCell).toBeVisible();
-  const opportunityId = (await oppCodeCell.textContent() || '').trim();
-  console.log(`[data] opportunityId: ${opportunityId}`);
-  await page.waitForTimeout(2000);
+    await page.reload();
+    await page.waitForLoadState('domcontentloaded');
 
-  const continueButton = page.locator('//h3[normalize-space()="Choose Opportunity"]//..//..//..//..//button[normalize-space()="Continue"]');
-  await expect(continueButton).toBeEnabled();
-  await continueButton.click();
+    const artSpan = page.locator('//div[@id="info-prepress-queue"]//span[contains(normalize-space(),"ART")]').first();
+    await expect(artSpan).toBeVisible();
+    const artNumberText = await artSpan.textContent();
+    const artNumber = artNumberText.split(' ')[1].trim();
+    console.log(`[data] artNumber: ${artNumber}`);
 
-  const codeDateDescriptionHeading = page.locator('div').filter({ hasText: 'CODE DATE DESCRIPTION' }).first();
-  await expect(codeDateDescriptionHeading).toBeVisible();
+    const waitingForArtBadge = page.locator('[id="badge-Waiting for Art"]');
+    await expect(waitingForArtBadge).toBeVisible();
+    await expect(waitingForArtBadge).toBeEnabled();
+    await waitingForArtBadge.click();
 
-  const viewAllButton = page.locator('//button[contains(normalize-space(),"View All")]').first();
-  if (await viewAllButton.isVisible()) {
-    await viewAllButton.click();
+    const draftBadge = page.locator('[id="badge-Draft"]');
+    await expect(draftBadge).toBeVisible();
+
+    const openLink = page.locator('a[x-tooltip="Open"]');
+    await expect(openLink).toBeVisible();
+    await expect(openLink).toBeEnabled();
+    await openLink.click();
+
+    const requestNumberSpanAgain = page.locator('span').filter({ hasText: new RegExp(`^Request #${requestNumber}$`) }).first();
+    await expect(requestNumberSpanAgain).toBeVisible();
+    await requestNumberSpanAgain.click();
   }
-
-  const opportunityAdded = page.locator('//span[@x-tooltip="' + opportunityId + '"]').first();
-  await expect(opportunityAdded).toBeVisible();
-  await opportunityAdded.click();
-
-  // Open → Opportunity show page
-
-  const openLink = page.locator('//div[normalize-space()="' + opportunityId + '"]//a').first();
-  await expect(openLink).toBeVisible();
-  await expect(openLink).toBeEnabled();
-  await openLink.click();
-
-  await page.waitForLoadState('domcontentloaded');
-  const opportunityPageHeading = page.locator('//div[@id="info-project"][contains(normalize-space(),"' + opportunityId + '")]').first();
-  await expect(opportunityPageHeading).toBeVisible();
 });

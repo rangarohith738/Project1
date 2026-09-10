@@ -33,7 +33,7 @@ test('Verify Opportunity Navigation @regression @set1', async ({ page }) => {
   // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -67,7 +67,7 @@ test('Verify Opportunity Navigation @regression @set1', async ({ page }) => {
 
   await page.waitForLoadState('domcontentloaded');
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');

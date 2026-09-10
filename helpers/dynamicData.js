@@ -28,8 +28,12 @@ function generateDynamicFields() {
     customerPartNumberRequired: faker.string.alphanumeric({ length: 8 }).toUpperCase(),
     brandName: faker.company.name(),
     toothCount: String(faker.number.int({ min: 1, max: 99 })),
+    numberOfSlits: String(faker.number.int({ min: 1, max: 9 })),
+    numberAcrossStep: String(faker.number.int({ min: 1, max: 9 })),
+    numberAroundRepeat: String(faker.number.int({ min: 1, max: 9 })),
     itemDefaultCost: String(faker.number.int({ min: 11, max: 99 })),
     itemDefaultPrice: String(faker.number.int({ min: 101, max: 999 })),
+    notesRequired: faker.lorem.words(4),
   };
 }
 

@@ -30,7 +30,11 @@ module.exports = {
     'customerPartNumberRequired',
     'brandName',
     'toothCount',
+    'numberOfSlits',
+    'numberAcrossStep',
+    'numberAroundRepeat',
     'itemDefaultCost',
     'itemDefaultPrice',
+    'notesRequired',
   ],
 };

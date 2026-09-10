@@ -39,7 +39,7 @@ test('Verify Summary RFP @regression @set1', async ({ page }) => {
   await expect(rfpMenuLink).toBeEnabled();
   await rfpMenuLink.click();
 
-  const mineFilter = page.locator('//label[normalize-space()="Mine"]');
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
   await expect(mineFilter).toBeVisible();
   await mineFilter.click();
 
@@ -47,25 +47,14 @@ test('Verify Summary RFP @regression @set1', async ({ page }) => {
   await expect(filtersButton).toBeEnabled();
   await filtersButton.click();
 
-  const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-  await columnInput.click();
+  const columnSelect = page.locator('select[data-flux-select-native][x-model="selection.column"]').first();
+  await columnSelect.selectOption("status");
 
-  const statusListItem = page.locator('li[data-label="Status"]').first();
-  await statusListItem.click();
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.selectOption("is equal to");
 
-  const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-  await expect(operatorInput).toBeEnabled();
-  await operatorInput.click();
-
-  const containsListItem = page.locator('li[data-label="is"]');
-  await containsListItem.click();
-
-  const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-  await expect(valueInput).toBeVisible();
-  await expect(valueInput).toBeEnabled();
-  await valueInput.click();
-  const requestedOption = page.locator('li[data-label="Requested"]');
-  await requestedOption.click();
+  const valueSelect = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select");
+  await valueSelect.selectOption("requested");
 
   const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
   await expect(applyButton).toBeEnabled();

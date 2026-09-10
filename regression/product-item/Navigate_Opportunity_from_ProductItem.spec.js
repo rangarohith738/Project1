@@ -1,9 +1,9 @@
-// Link Existing Opportunity To Product Item
+// Navigate Opportunity from Product Item (Links → Open → Opportunity show page)
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test('Link Existing Opportunity To Product Item @regression @set2', async ({ page }) => {
+test('Navigate Opportunity from Product Item @regression @set2', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
@@ -33,10 +33,12 @@ test('Link Existing Opportunity To Product Item @regression @set2', async ({ pag
   await page.waitForLoadState('domcontentloaded');
 
   const itemsMenuButton = page.locator('button').filter({ hasText: 'Items' }).first();
+  await expect(itemsMenuButton).toBeEnabled();
   await itemsMenuButton.click();
 
   const productItemsLink = page.getByRole('link', { name: 'Product Items', exact: true });
   await expect(productItemsLink).toBeVisible();
+  await expect(productItemsLink).toBeEnabled();
   await productItemsLink.click();
 
   await page.waitForLoadState('domcontentloaded');
@@ -57,47 +59,60 @@ test('Link Existing Opportunity To Product Item @regression @set2', async ({ pag
   await expect(productItemDetailHeading).toBeVisible();
   await expect(productItemDetailHeading).toBeEnabled();
 
-  const productItemHeading = page.locator('div').filter({ hasText: `${firstProductItemText}-Product Item` }).first();
-  await expect(productItemHeading).toBeVisible();
-  await expect(productItemHeading).toBeEnabled();
-  await productItemHeading.click();
-
   const linksTabButton = page.locator('[data-cy="hub-tab-links"]');
   await expect(linksTabButton).toBeEnabled();
   await linksTabButton.click();
+  await page.waitForTimeout(2000);
 
+  const existingOppChip = page.locator('span[x-tooltip^="OPP"]').first();
   const chooseOpportunitiesButton = page.locator('//button[normalize-space()="Choose Opportunities"]').first();
-  await expect(chooseOpportunitiesButton).toBeEnabled();
-  await chooseOpportunitiesButton.click();
+  let opportunityId;
 
-  await page.waitForTimeout(2000);
-  const firstOpportunityRow = page.locator('(//tbody//tr[1]//td[3]//div)[2]').first();
-  await expect(firstOpportunityRow).toBeVisible();
-  const opportunityName = (await firstOpportunityRow.textContent() || '').trim();
-  console.log(`[data] opportunityName: ${opportunityName}`);
-  await firstOpportunityRow.click();
+  if (await existingOppChip.isVisible()) {
+    opportunityId = (await existingOppChip.getAttribute('x-tooltip') || '').trim();
+    console.log(`[data] already linked opportunityId: ${opportunityId}`);
+  } else {
+    await expect(chooseOpportunitiesButton).toBeEnabled();
+    await chooseOpportunitiesButton.click();
+    await page.waitForTimeout(2000);
 
-  const oppCodeCell = page.locator('(//tbody//tr[1]//td[2]//div)[2]').first();
-  await expect(oppCodeCell).toBeVisible();
-  const opportunityId = (await oppCodeCell.textContent() || '').trim();
-  console.log(`[data] opportunityId: ${opportunityId}`);
-  await page.waitForTimeout(2000);
+    const firstOpportunityNameCell = page.locator('(//tbody//tr[1]//td[3]//div)[2]').first();
+    await expect(firstOpportunityNameCell).toBeVisible();
+    const opportunityName = (await firstOpportunityNameCell.textContent() || '').trim();
+    console.log(`[data] opportunityName: ${opportunityName}`);
+    await firstOpportunityNameCell.click();
 
-  const continueButton = page.locator('//h3[normalize-space()="Choose Opportunity"]//..//..//..//..//button[normalize-space()="Continue"]');
-  await expect(continueButton).toBeEnabled();
-  await continueButton.click();
+    const oppCodeCell = page.locator('(//tbody//tr[1]//td[2]//div)[2]').first();
+    await expect(oppCodeCell).toBeVisible();
+    opportunityId = (await oppCodeCell.textContent() || '').trim();
+    console.log(`[data] opportunityId: ${opportunityId}`);
+    await page.waitForTimeout(2000);
 
-  const codeDateDescriptionHeading = page.locator('div').filter({ hasText: 'CODE DATE DESCRIPTION' }).first();
-  await expect(codeDateDescriptionHeading).toBeVisible();
-  await expect(codeDateDescriptionHeading).toBeEnabled();
-  await codeDateDescriptionHeading.click();
+    const continueButton = page.locator('//h3[normalize-space()="Choose Opportunity"]//..//..//..//..//button[normalize-space()="Continue"]');
+    await expect(continueButton).toBeEnabled();
+    await continueButton.click();
+
+    const codeDateDescriptionHeading = page.locator('div').filter({ hasText: 'CODE DATE DESCRIPTION' }).first();
+    await expect(codeDateDescriptionHeading).toBeVisible();
+  }
+
+  const viewAllButton = page.locator('//button[contains(normalize-space(),"View All")]').first();
+  if (await viewAllButton.isVisible()) {
+    await viewAllButton.click();
+  }
 
   const opportunityAdded = page.locator('//span[@x-tooltip="' + opportunityId + '"]').first();
   await expect(opportunityAdded).toBeVisible();
-  await expect(opportunityAdded).toBeEnabled();
   await opportunityAdded.click();
 
-  const openLink = page.locator('a[x-tooltip="Open"]').first();
+  // Open → Opportunity show page
+
+  const openLink = page.locator('//div[normalize-space()="' + opportunityId + '"]//a').first();
   await expect(openLink).toBeVisible();
   await expect(openLink).toBeEnabled();
+  await openLink.click();
+
+  await page.waitForLoadState('domcontentloaded');
+  const opportunityPageHeading = page.locator('//div[@id="info-project"][contains(normalize-space(),"' + opportunityId + '")]').first();
+  await expect(opportunityPageHeading).toBeVisible();
 });

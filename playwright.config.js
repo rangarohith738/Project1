@@ -8,7 +8,7 @@ module.exports = defineConfig({
   globalTeardown: require.resolve('./global-teardown.js'),
   fullyParallel: false,
   workers: 1,
-  retries: 1,
+  retries: 0,
   timeout: 360000,
   expect: {
     timeout: 120000,
@@ -27,7 +27,7 @@ module.exports = defineConfig({
     video: 'retain-on-failure',
     trace: 'on',
     launchOptions: {
-      slowMo: process.env.CI ? 1500 : 3000,
+      slowMo: 1500,
     },
   },
   projects: [

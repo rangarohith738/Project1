@@ -1,9 +1,9 @@
-// Verify Product Item Index Page Load
+// Verify Product Item index: page load, Active Only toggle, Filters, quick search, show page
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test('Verify Product Item Index Page Load @regression @set2', async ({ page }) => {
+test('Verify Product Item Index Filters, Toggle and Search @regression @set2', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
@@ -49,7 +49,7 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
   await expect(productItemsLabel).toBeVisible();
   await expect(productItemsLabel).toBeEnabled();
 
-  const activeOnlyLabel = page.locator('label').filter({ hasText: 'Active Only' }).first();
+  const activeOnlyLabel = page.locator('span').filter({ hasText: 'Active Only' }).first();
   await expect(activeOnlyLabel).toBeVisible();
   await expect(activeOnlyLabel).toBeEnabled();
 
@@ -59,7 +59,7 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
   const resetButton = page.getByRole('button', { name: 'Reset', exact: true });
   await expect(resetButton).toBeVisible();
 
-  const quickSearchInput = page.locator('[data-cy="input"]');
+  const quickSearchInput = page.locator('input[placeholder="Quick Search"][data-flux-control]');
   await expect(quickSearchInput).toBeVisible();
   await expect(quickSearchInput).toBeEnabled();
 
@@ -103,7 +103,7 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
   await expect(unitTemplateSummaryHeader).toBeVisible();
 
   const productClassText = page
-    .locator('p')
+    .locator('th')
     .filter({ hasText: 'PRODUCT CLASS' })
     .first();
   await expect(productClassText).toBeVisible();
@@ -114,18 +114,6 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
     .first();
   await expect(statusHeader).toBeVisible();
 
-  const previousPageSpan = page
-    .locator('span')
-    .filter({ hasText: '&laquo; Previous' })
-    .first();
-  await expect(previousPageSpan).toBeVisible();
-
-  const perPageDiv = page
-    .locator('div')
-    .filter({ hasText: 'Per Page' })
-    .first();
-  await expect(perPageDiv).toBeVisible();
-
   const productItemsRowCount = await page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]').count();
   if (productItemsRowCount === 0) {
     await page.waitForLoadState('domcontentloaded');
@@ -135,4 +123,92 @@ test('Verify Product Item Index Page Load @regression @set2', async ({ page }) =
     await expect(productItemsRowCount).toBeGreaterThan(0);
     console.log('productItemsRowCount: ' + productItemsRowCount);
   }
+
+  const activeOnlyToggle = page.locator(
+    '//span[normalize-space()="Active Only"]//following::button[1]'
+  );
+
+  const isActiveOnlyEnabled = await activeOnlyToggle.evaluate((button) =>
+    button.classList.contains('bg-denim-blue-600')
+  );
+  await expect(isActiveOnlyEnabled).toBe(true);
+
+  const activeOnlyCount = Number(
+    await page.locator('//div[@aria-label="Pagination"]//span[2]').innerText()
+  );
+  console.log(`[data] activeOnlyCount: ${activeOnlyCount}`);
+
+  await activeOnlyToggle.click();
+  await page.waitForTimeout(3000);
+
+  const isActiveOnlyEnabledAfterToggleOff = await activeOnlyToggle.evaluate((button) =>
+    button.classList.contains('bg-denim-blue-600')
+  );
+  await expect(isActiveOnlyEnabledAfterToggleOff).toBe(false);
+
+  const allItemsCount = Number(
+    await page.locator('//div[@aria-label="Pagination"]//span[2]').innerText()
+  );
+  console.log(`[data] allItemsCount: ${allItemsCount}`);
+
+  await expect(allItemsCount).toBeGreaterThan(activeOnlyCount);
+
+  await activeOnlyToggle.click();
+  await page.waitForTimeout(3000);
+
+  await expect(filtersButton).toBeEnabled();
+  await filtersButton.click();
+
+  const columnSelect = page.locator('select[data-flux-select-native][x-model="selection.column"]').first();
+  await columnSelect.selectOption('Customer');
+
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.selectOption('contains');
+
+  const valueSelect = page.getByPlaceholder('value');
+  await valueSelect.fill(testData.quickSearch);
+
+  const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
+  await expect(applyButton).toBeEnabled();
+  await applyButton.click();
+
+  await expect(page.getByRole('button', { name: 'Filters 1', exact: true })).toBeVisible();
+
+  const filteredRows = page.locator('//th[normalize-space()="Customer"]//following::tbody//tr');
+  await expect(filteredRows.first()).toBeVisible();
+  const filteredRowTexts = await filteredRows.allTextContents();
+  for (const text of filteredRowTexts) {
+    expect(text.toLowerCase()).toContain(testData.quickSearch.toLowerCase());
+  }
+
+  await expect(resetButton).toBeEnabled();
+  await resetButton.click();
+  await page.waitForTimeout(2000);
+  await expect(page.getByRole('button', { name: 'Filters 0', exact: true })).toBeVisible();
+
+  const firstProductCell = page.locator('//tbody//tr[1]//td[2]//p[1]');
+  await expect(firstProductCell).toBeVisible();
+  const productItemSearch = (await firstProductCell.textContent() || '').split(/\s*\|\s*/)[0].trim().replace(/\|/g, '').trim();
+  console.log(`[data] productItemSearch: ${productItemSearch}`);
+
+  await quickSearchInput.fill(productItemSearch);
+
+  const productItemsRow = page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]');
+  await expect(productItemsRow).toHaveCount(1);
+
+  const searchedItem = page.locator('//tbody//tr[1]//td[2]//p[1]');
+  await expect(searchedItem).toBeVisible();
+  await searchedItem.click();
+
+  const productItemHeading = page.locator('div').filter({ hasText: `${productItemSearch}-Product Item` }).first();
+  await expect(productItemHeading).toBeVisible();
+
+  const productItemInfoSection = page.locator('div').filter({ hasText: 'Product Item Information' }).first();
+  await expect(productItemInfoSection).toBeVisible();
+
+  const detailsTabButton = page.locator('[data-cy="hub-tab-details"]');
+  await expect(detailsTabButton).toBeVisible();
+
+  const productRouteHeading = page.locator('h3').filter({ hasText: 'Product Route' }).first();
+  await expect(productRouteHeading).toBeVisible();
 });

@@ -3,10 +3,10 @@ import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test('Add Option Charges in RFP @regression @set2', async ({ page }) => {
-  const session = prepareSession({ force: false });
+test('Add Option Charges in RFP @regression @set2 @demo', async ({ page }) => {
+  const session = prepareSession({ force: true });
   Object.assign(testData, session);
-  console.log(`[data] Reusing session → nameRequired: ${session.nameRequired}`);
+  console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
 
   // Initial navigation and login
   await page.goto(testData.url);
@@ -33,7 +33,7 @@ test('Add Option Charges in RFP @regression @set2', async ({ page }) => {
   // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -69,32 +69,24 @@ test('Add Option Charges in RFP @regression @set2', async ({ page }) => {
 
   async function applying_filters() {
 
-    const toggleMyne = page.locator('//label[normalize-space()="Mine"]//following::button[1]');
+    const toggleMyne = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
     await toggleMyne.click();
   
     const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
     await expect(filtersButton).toBeEnabled();
     await filtersButton.click();
    
-    const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-    await columnInput.click();
-   
-    const statusListItem = page.locator('li[data-label="Status"]').first();
-    await statusListItem.click();
-   
-    const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-    await expect(operatorInput).toBeEnabled();
-    await operatorInput.click();
-   
-    const containsListItem = page.locator('li[data-label="is"]');
-    await containsListItem.click();
-   
-    const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-    await expect(valueInput).toBeVisible();
-    await expect(valueInput).toBeEnabled();
-    await valueInput.click();
-    const requestedOption = page.locator('li[data-label="Requested"]');
-    await requestedOption.click();
+    const columnSelect = page.locator("xpath=//option[normalize-space(.)='Column']/ancestor::select");
+    await columnSelect.click();
+    await columnSelect.selectOption("status");
+
+    const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+    await operatorSelect.click();
+    await operatorSelect.selectOption("is equal to");
+
+    const valueSelect = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select");
+    await valueSelect.click();
+    await valueSelect.selectOption("requested");
    
     const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
     await expect(applyButton).toBeEnabled();
@@ -122,11 +114,19 @@ test('Add Option Charges in RFP @regression @set2', async ({ page }) => {
  
   const chooseOptionHeading = page.locator('h3').filter({ hasText: 'Choose Option' }).first();
   await expect(chooseOptionHeading).toBeVisible();
- 
+
+  const nameSearch = page.locator('(//h3[normalize-space()="Choose Option"]//following::input[@placeholder="Quick Search"])[1]').first();
+  await nameSearch.fill("Horizontal Perf");
+  await page.waitForTimeout(2000);
+
   const horizontalPerfCheckbox = page.locator('//label[normalize-space()="Horizontal Perf"]/input');
   await horizontalPerfCheckbox.check();
   await expect(horizontalPerfCheckbox).toBeChecked();
- 
+  await nameSearch.clear();
+  await page.waitForTimeout(2000);
+  await nameSearch.fill("Screen Print");
+  await page.waitForTimeout(2000);
+
   const verticalPerfCheckbox = page.locator('//label[normalize-space()="Screen Print"]/input');
   await verticalPerfCheckbox.check();
   await expect(verticalPerfCheckbox).toBeChecked();
@@ -135,13 +135,11 @@ test('Add Option Charges in RFP @regression @set2', async ({ page }) => {
   await expect(continueButton).toBeEnabled();
   await continueButton.click();
  
-  const horizontalPerfOptionRow = page.locator('span').filter({ hasText: '19 - Horizontal Perf' }).first();
-  await expect(horizontalPerfOptionRow).toBeEnabled();
-  await horizontalPerfOptionRow.click();
- 
-  const verticalPerfOptionSpan = page.locator('span').filter({ hasText: '15 - Screen Print' }).first();
-  await expect(verticalPerfOptionSpan).toBeEnabled();
-  await verticalPerfOptionSpan.click();
+  const horizontalPerfOptionRow = page.locator('div').filter({ hasText: '19 - Horizontal Perf' }).first();
+  await expect(horizontalPerfOptionRow).toBeVisible();
+
+  const verticalPerfOptionSpan = page.locator('div').filter({ hasText: '15 - Screen Print' }).first();
+  await expect(verticalPerfOptionSpan).toBeVisible();
  
   const flatCost19Input = page.locator('input[name="editingEstimateOptions.19.flat_cost"][type="text"]');
   await expect(flatCost19Input).toBeEditable();

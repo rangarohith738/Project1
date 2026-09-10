@@ -1,16 +1,13 @@
-// Covers both estimate-button workflows:
-// 1) Convert to Estimate is disabled until a user is assigned, then enabled
-// 2) Convert to Estimate creates a Draft estimate
+// Convert RFP to Estimate: assign user, convert, confirm on Estimates index
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test('Verify Estimate button enable and convert when user assigned @regression @set1', async ({ page }) => {
+test('Convert RFP to Estimate @regression @set1', async ({ page }) => {
   const session = prepareSession({ force: true });
   Object.assign(testData, session);
   console.log(`[data] Creation override → nameRequired: ${session.nameRequired}`);
 
-  // Initial navigation and login
   await page.goto(testData.url);
 
   const signInWithEmailButton = page.locator('[data-cy="btnLoginVisible"]');
@@ -32,10 +29,9 @@ test('Verify Estimate button enable and convert when user assigned @regression @
   await expect(confirmSignInButton).toBeEnabled();
   await confirmSignInButton.click();
 
-  // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -47,7 +43,6 @@ test('Verify Estimate button enable and convert when user assigned @regression @
 
   await btn.click();
 
-  // Request For Proposals navigation
   const requestForProposalsLink = page.getByRole('link', {
     name: 'Request For Proposals',
     exact: true
@@ -57,7 +52,6 @@ test('Verify Estimate button enable and convert when user assigned @regression @
   await expect(requestForProposalsLink).toBeEnabled();
   await requestForProposalsLink.click();
 
-  // Request for Proposals Queue
   const rfpQueueLabel = page
     .locator('label')
     .filter({ hasText: /^Request for Proposals Queue$/ })
@@ -69,57 +63,62 @@ test('Verify Estimate button enable and convert when user assigned @regression @
 
   await page.waitForLoadState('domcontentloaded');
 
-    const toggleMyne = page.locator('//label[normalize-space()="Mine"]//following::button[1]');
-    await toggleMyne.click();
-  
-    const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
-    await expect(filtersButton).toBeEnabled();
-    await filtersButton.click();
-   
-    const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-    await columnInput.click();
-   
-    const statusListItem = page.locator('li[data-label="Status"]').first();
-    await statusListItem.click();
-   
-    const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-    await expect(operatorInput).toBeEnabled();
-    await operatorInput.click();
-   
-    const containsListItem = page.locator('li[data-label="is"]');
-    await containsListItem.click();
-   
-    const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-    await expect(valueInput).toBeVisible();
-    await expect(valueInput).toBeEnabled();
-    await valueInput.click();
-    const requestedOption = page.locator('li[data-label="Requested"]');
-    await requestedOption.click();
+  const unassignedToggle = page.locator('//span[normalize-space()="Unassigned"]/..//div/button').first();
+  await expect(unassignedToggle).toBeVisible();
+  await expect(unassignedToggle).toBeEnabled();
+  const isOff = await unassignedToggle.evaluate(el => el.classList.contains('bg-gray-200'));
+  if (isOff) {
+    await unassignedToggle.click();
+  }
+  await expect(unassignedToggle).toHaveClass(/bg-denim-blue-600/);
 
-    const addAFilterButton = page.locator('p').filter({ hasText: 'Add A Filter' });
+  const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
+  await expect(filtersButton).toBeEnabled();
+  await filtersButton.click();
+
+  const columnSelect = page.locator("xpath=//option[normalize-space(.)='Column']/ancestor::select");
+  await columnSelect.click();
+  await columnSelect.selectOption("Requested By");
+
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.click();
+  await operatorSelect.selectOption("contains");
+
+  const valueSelect = page.getByPlaceholder('value');
+  await valueSelect.fill("Ranga Sharan Rohith");
+
+  const addAFilterButton = page.locator('p').filter({ hasText: 'Add A Filter' });
   await addAFilterButton.click();
 
-  const secondColumnInput = page.locator('input[name="rows.1.column"][type="text"]');
-  await expect(secondColumnInput).toBeVisible();
-  await expect(secondColumnInput).toBeEnabled();
-  await secondColumnInput.click();
+  const columnSelect_2 = page.locator("xpath=//option[normalize-space(.)='Column']/ancestor::select").last();
+  await columnSelect_2.click();
+  await columnSelect_2.selectOption("status");
 
-  const assignedToListItem = page.locator('li[data-label="Assigned To"]').nth(1);
-await expect(assignedToListItem).toBeVisible();
-await assignedToListItem.click();
+  const operatorSelect_2 = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select").last();
+  await operatorSelect_2.click();
+  await operatorSelect_2.selectOption("is equal to");
 
-  const secondOperatorInput = page.locator('input[name="rows.1.operator"][type="text"]');
-  await secondOperatorInput.click();
+  const valueSelect_2 = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select").last();
+  await valueSelect_2.click();
+  await valueSelect_2.selectOption("requested");
 
-  const emptyListItem = page.locator('li[data-label="empty"]').nth(1);
-  await emptyListItem.click();
+  const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
+  await expect(applyButton).toBeEnabled();
+  await applyButton.click();
 
-    const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
-    await expect(applyButton).toBeEnabled();
-    await applyButton.click();
+  await expect(page.getByRole('button', { name: 'Filters 2', exact: true })).toBeVisible();
 
-    await expect(page.getByRole('button', { name: 'Filters 2', exact: true })).toBeVisible();
-    await page.waitForTimeout(3000);
+  const column10 = page.locator('//thead/tr/th[10]//following::tbody/tr/td[10]/div//span');
+  const column10Text = await column10.allTextContents();
+  for (const text of column10Text) {
+    expect(text.trim()).toBe("Requested");
+  }
+
+  const column11 = page.locator('//thead/tr/th[11]//following::tbody/tr/td[11]/div');
+  const column11Text = await column11.allTextContents();
+  for (const text of column11Text) {
+    expect(text.trim()).toBe("Ranga Sharan Rohith");
+  }
 
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
   await expect(firstRfpCell).toBeVisible();
@@ -130,7 +129,9 @@ await assignedToListItem.click();
   const proposalTitleSpan = page.locator('span').filter({ hasText: `${rfpNumber} - Request for Proposal` }).first();
   await expect(proposalTitleSpan).toBeVisible();
 
-  // Workflow 1: button disabled when unassigned, enabled after assign
+  const statusRequestedText = page.locator('div').filter({ hasText: 'Status Requested' }).first();
+  await expect(statusRequestedText).toBeVisible();
+
   const convertToEstimateButton_not_visible = page.locator('button').filter({ hasText: 'Convert to Estimate' });
   await expect(convertToEstimateButton_not_visible).not.toBeEnabled();
 
@@ -138,25 +139,21 @@ await assignedToListItem.click();
   await expect(selectUserButton).toBeVisible();
   await selectUserButton.click();
 
-  const rohithRangaCell = page.locator('td').filter({ hasText: 'Rohith Ranga' }).first();
+  const rohithRangaCell = page.locator('td').filter({ hasText: 'Ranga Sharan Rohith' }).first();
   await expect(rohithRangaCell).toBeVisible();
   await rohithRangaCell.click();
-
-  const rohithRangaDiv = page.locator('div').filter({ hasText: 'Rohith Ranga' }).first();
-  await expect(rohithRangaDiv).toBeVisible();
 
   const continueCustomerButton = page.getByRole('button', { name: 'Continue', exact: true });
   await expect(continueCustomerButton).toBeEnabled();
   await continueCustomerButton.click();
 
-  const rohithRangaButton = page.getByRole('button', { name: 'Rohith Ranga', exact: true });
+  const rohithRangaButton = page.getByRole('button', { name: 'Ranga Sharan Rohith', exact: true });
   await expect(rohithRangaButton).toBeVisible();
 
   const convertToEstimateButton = page.locator('button').filter({ hasText: 'Convert to Estimate' });
   await expect(convertToEstimateButton).toBeVisible();
   await expect(convertToEstimateButton).toBeEnabled();
 
-  // Workflow 2: convert RFP to a Draft estimate
   await convertToEstimateButton.click();
 
   const convertToEstimateModalText = page.locator('div').filter({ hasText: 'Convert to Estimate Are you sure you want to convert this Request for Proposal to an Estimate'}).first();
@@ -170,7 +167,6 @@ await assignedToListItem.click();
   const newEstimateLink = page.getByRole('link', { name: 'New Estimate', exact: true });
   await expect(newEstimateLink).toBeVisible();
 
-
   const detailsSection = page.locator('div').filter({ hasText: 'Details' }).first();
   await expect(detailsSection).toBeVisible();
 
@@ -181,6 +177,30 @@ await assignedToListItem.click();
     '//span[normalize-space()="Draft"]/preceding-sibling::div/span/span[normalize-space()="01"]');
   await expect(draftIcon).toBeVisible();
   await expect(draftIcon).toHaveCount(1);
- 
+  await page.waitForTimeout(4000);
+
+  const estimateText = await page.locator('//div[@class="section"]//h1//span').innerText();
+  const estimateNumber = estimateText.replace(/\s*-\s*Estimate\s*$/, '').trim();
+  console.log("Estimate Number:", estimateNumber);
+
+  const btn_back_to_estimates = page.locator(
+    '(//button[normalize-space()="Estimating & Pricing"])[1]'
+  );
+  await btn_back_to_estimates.click();
+  const EstimatesLink = page.getByRole('link', {
+    name: 'Estimates/Quotes',
+    exact: true
+  });
+  await expect(EstimatesLink).toBeVisible();
+  await expect(EstimatesLink).toBeEnabled();
+  await EstimatesLink.click();
+  await page.waitForLoadState('domcontentloaded');
+
+  const quickSearchInput_estimates = page.locator('input[placeholder="Quick Search"][data-flux-control]');
+  await expect(quickSearchInput_estimates).toBeVisible();
+  await expect(quickSearchInput_estimates).toBeEditable();
+  await quickSearchInput_estimates.fill(estimateNumber);
+
+  const rowCount_Estimates = page.locator('//th[normalize-space()="Customer"]//following::tbody//tr//td[2]');
+  await expect(rowCount_Estimates).toHaveCount(1);
 });
- 

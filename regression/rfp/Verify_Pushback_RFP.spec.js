@@ -33,7 +33,7 @@ test('Verify Pushback RFP @regression @set2', async ({ page }) => {
   // Dashboard navigation
   const taskDashboardLabel = page
     .locator('label')
-    .filter({ hasText: /^Rohith\'s Task Dashboard$/ })
+    .filter({ hasText: /^Ranga\'s Task Dashboard$/ })
     .first();
 
   await expect(taskDashboardLabel).toBeVisible();
@@ -67,38 +67,28 @@ test('Verify Pushback RFP @regression @set2', async ({ page }) => {
 
   await page.waitForLoadState('domcontentloaded');
 
-    const toggleMyne = page.locator('//label[normalize-space()="Mine"]//following::button[1]');
-    await toggleMyne.click();
-  
-    const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
-    await expect(filtersButton).toBeEnabled();
-    await filtersButton.click();
-   
-    const columnInput = page.locator('input[name="rows.0.column"][type="text"]').first();
-    await columnInput.click();
-   
-    const statusListItem = page.locator('li[data-label="Status"]').first();
-    await statusListItem.click();
-   
-    const operatorInput = page.locator('input[name="rows.0.operator"][type="text"]');
-    await expect(operatorInput).toBeEnabled();
-    await operatorInput.click();
-   
-    const containsListItem = page.locator('li[data-label="is"]');
-    await containsListItem.click();
-   
-    const valueInput = page.locator('input[name="rows.0.value"][type="text"]');
-    await expect(valueInput).toBeVisible();
-    await expect(valueInput).toBeEnabled();
-    await valueInput.click();
-    const requestedOption = page.locator('li[data-label="Requested"]');
-    await requestedOption.click();
-   
-    const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
-    await expect(applyButton).toBeEnabled();
-    await applyButton.click();
+  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
+  await expect(mineFilter).toBeVisible();
+  await mineFilter.click();
 
-    await expect(page.getByRole('button', { name: 'Filters 1', exact: true })).toBeVisible();
+  const filtersButton = page.getByRole('button', { name: 'Filters 0', exact: true });
+  await expect(filtersButton).toBeEnabled();
+  await filtersButton.click();
+
+  const columnSelect = page.locator('select[data-flux-select-native][x-model="selection.column"]').first();
+  await columnSelect.selectOption("status");
+
+  const operatorSelect = page.locator("xpath=//div[normalize-space(.)='Operator is equal tocontains']//select");
+  await operatorSelect.selectOption("is equal to");
+
+  const valueSelect = page.locator("xpath=//option[normalize-space(.)='Value']/ancestor::select");
+  await valueSelect.selectOption("requested");
+
+  const applyButton = page.getByRole('button', { name: 'Apply', exact: true });
+  await expect(applyButton).toBeEnabled();
+  await applyButton.click();
+
+  await expect(page.getByRole('button', { name: 'Filters 1', exact: true })).toBeVisible();
 
   const firstRfpCell = page.locator('//tbody//tr[1]//td[2]');
   await expect(firstRfpCell).toBeVisible();
