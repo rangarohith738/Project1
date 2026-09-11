@@ -1,5 +1,7 @@
 const { defineConfig } = require('@playwright/test');
 
+const isCI = !!process.env.CI;
+
 module.exports = defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.js',
@@ -7,8 +9,9 @@ module.exports = defineConfig({
   globalSetup: require.resolve('./global-setup.js'),
   globalTeardown: require.resolve('./global-teardown.js'),
   fullyParallel: false,
+  forbidOnly: isCI,
   workers: 1,
-  retries: 0,
+  retries: 1,
   timeout: 360000,
   expect: {
     timeout: 120000,
@@ -25,7 +28,7 @@ module.exports = defineConfig({
     headless: process.env.HEADLESS !== 'false',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    trace: 'on',
+    trace: isCI ? 'retain-on-failure' : 'on',
     launchOptions: {
       slowMo: 1500,
     },
