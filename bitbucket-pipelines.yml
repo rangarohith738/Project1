@@ -5,47 +5,7 @@ definitions:
     npm: ~/.npm
 
   steps:
-    - step: &rfp-test
-        size: 2x
-        max-time: 120
-        caches:
-          - npm
-        artifacts:
-          - playwright-report/**
-          - test-results/**
-          - allure-results/**
-
-    - step: &estimates-test
-        size: 2x
-        max-time: 120
-        caches:
-          - npm
-        artifacts:
-          - playwright-report/**
-          - test-results/**
-          - allure-results/**
-
-    - step: &product-item-test
-        size: 2x
-        max-time: 120
-        caches:
-          - npm
-        artifacts:
-          - playwright-report/**
-          - test-results/**
-          - allure-results/**
-
-    - step: &opportunity-test
-        size: 2x
-        max-time: 120
-        caches:
-          - npm
-        artifacts:
-          - playwright-report/**
-          - test-results/**
-          - allure-results/**
-
-    - step: &regression-test
+    - step: &pw-test
         size: 2x
         max-time: 120
         caches:
@@ -60,50 +20,77 @@ pipelines:
   custom:
     rfp:
       - step:
-          <<: *rfp-test
+          <<: *pw-test
           name: Run RFP
           script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
             - npm ci
             - npx playwright install --with-deps chromium
             - rm -f data/session-data.json data/session-data-w*.json
-            - npx playwright test regression/rfp --project=chromium --workers=1
+            - npx playwright test regression/rfp --project=chromium --workers=4
 
     estimates:
       - step:
-          <<: *estimates-test
+          <<: *pw-test
           name: Run Estimates
           script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
             - npm ci
             - npx playwright install --with-deps chromium
             - rm -f data/session-data.json data/session-data-w*.json
-            - npx playwright test regression/estimates --project=chromium --workers=1
+            - npx playwright test regression/estimates --project=chromium --workers=4
 
     product-item:
       - step:
-          <<: *product-item-test
+          <<: *pw-test
           name: Run Product Item
           script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
             - npm ci
             - npx playwright install --with-deps chromium
             - rm -f data/session-data.json data/session-data-w*.json
-            - npx playwright test regression/product-item --project=chromium --workers=1
+            - npx playwright test regression/product-item --project=chromium --workers=4
 
     opportunity:
       - step:
-          <<: *opportunity-test
+          <<: *pw-test
           name: Run Opportunity
           script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
             - npm ci
             - npx playwright install --with-deps chromium
             - rm -f data/session-data.json data/session-data-w*.json
-            - npx playwright test regression/opportunity --project=chromium --workers=1
+            - npx playwright test regression/opportunity --project=chromium --workers=4
+
+    customer:
+      - step:
+          <<: *pw-test
+          name: Run Customer
+          script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
+            - npm ci
+            - npx playwright install --with-deps chromium
+            - rm -f data/session-data.json data/session-data-w*.json
+            - npx playwright test regression/customer --project=chromium --workers=4
+
+    mainflow:
+      - step:
+          <<: *pw-test
+          name: Run Main Flow
+          script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
+            - npm ci
+            - npx playwright install --with-deps chromium
+            - rm -f data/session-data.json data/session-data-w*.json
+            - npx playwright test regression --project=chromium --grep '@mainflow' --workers=1
 
     regression:
       - step:
-          <<: *regression-test
+          <<: *pw-test
           name: Run All Modules
           script:
+            - export CI=true PLAYWRIGHT_NO_COPY_PROMPT=1 HEADLESS=true
             - npm ci
             - npx playwright install --with-deps chromium
             - rm -f data/session-data.json data/session-data-w*.json
-            - npx playwright test regression --project=chromium --workers=1
+            - npx playwright test regression --project=chromium --workers=4

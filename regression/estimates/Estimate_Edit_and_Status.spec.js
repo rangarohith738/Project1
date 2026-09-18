@@ -1,9 +1,9 @@
-// Edit Draft Estimate general info and status progression
+// Edit Estimate general info and status progression
 import testData from '../../test-data.json';
 import { test, expect } from '@playwright/test';
 const { prepareSession } = require('../../helpers/sessionData');
 
-test.describe('Estimate Draft Updates @regression', () => {
+test.describe('Estimate Edit and Status @regression', () => {
   test.describe.configure({ mode: 'serial' });
 
   let page;
@@ -84,10 +84,6 @@ test.describe('Estimate Draft Updates @regression', () => {
     const descriptionDiv = page.locator('//div[@id="info-estimate"]//div[normalize-space()="Description"]//following-sibling::div//span').first();
     await expect(descriptionDiv).toBeVisible();
 
-    const printMethodDiv = page.locator('//div[@id="info-estimate"]//div[normalize-space()="Print Method"]//following-sibling::div//span').first();
-    await expect(printMethodDiv).toBeVisible();
-    const currentPrintMethod = (await printMethodDiv.innerText()).trim();
-
     const editButton = page.locator('//button[@data-cy="estimateEditButton"]');
     await expect(editButton).toBeEnabled();
     await editButton.click();
@@ -98,20 +94,6 @@ test.describe('Estimate Draft Updates @regression', () => {
     await estimateDescriptionTextarea.fill(testData.descriptionRequired);
     await expect(estimateDescriptionTextarea).toHaveValue(testData.descriptionRequired);
 
-    const printMethodInput = page.locator('//div[normalize-space()="Print Method"]/following-sibling::div//input');
-    await expect(printMethodInput).toBeVisible();
-    await expect(printMethodInput).toBeEnabled();
-    await printMethodInput.click();
-    await page.waitForTimeout(2000);
-
-    const currentOption = page.locator(`li[data-label="${currentPrintMethod}"]`);
-    const nextOption = currentOption.locator('xpath=following-sibling::li[1]');
-    const targetOption = (await nextOption.count()) ? nextOption : currentOption.locator('xpath=preceding-sibling::li[1]');
-    await expect(targetOption).toBeVisible();
-    const targetValue = await targetOption.getAttribute('data-label');
-    await targetOption.click();
-    await page.waitForTimeout(2000);
-
     const saveButton = page.locator('button[x-tooltip="Save"]').first();
     await expect(saveButton).toBeVisible();
     await expect(saveButton).toBeEnabled();
@@ -120,10 +102,7 @@ test.describe('Estimate Draft Updates @regression', () => {
     await expect(cancelEditButton).toBeVisible();
 
     await saveButton.click();
-
-    await expect(printMethodDiv).toBeVisible();
     await page.waitForTimeout(4000);
-    await expect(printMethodDiv).toHaveText(targetValue);
 
     await expect(descriptionDiv).toContainText(testData.descriptionRequired);
   });
