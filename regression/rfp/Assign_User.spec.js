@@ -71,7 +71,7 @@ test('Assign User in RFP @regression @set1', async ({ page }) => {
   await expect(projectRadio).toBeVisible();
   await projectRadio.check();
   await expect(projectRadio).toBeChecked();
-
+  await page.waitForTimeout(2000);
   const opportunityNameInput = page.locator('//input[@placeholder="Enter the opportunity name"]');
   await expect(opportunityNameInput).toBeVisible();
   await expect(opportunityNameInput).toBeEditable();

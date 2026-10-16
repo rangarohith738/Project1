@@ -444,7 +444,7 @@ test('Edit Product Item Specifications @regression @set1', async ({ page }) => {
   await saveProductRouteButton.click();
 
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(3000);
+  await page.waitForTimeout(4000);
 
   const productItemShowHeading = page.locator('div.title').filter({ hasText: `${productItemId}-Product Item` }).first();
   await expect(productItemShowHeading).toBeVisible();

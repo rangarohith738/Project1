@@ -85,7 +85,7 @@ test.describe('RFP Creation @regression', () => {
   await expect(projectRadio).toBeVisible();
   await projectRadio.check();
   await expect(projectRadio).toBeChecked();
-
+  await page.waitForTimeout(2000);
   const opportunityNameInput = page.locator('//input[@placeholder="Enter the opportunity name"]').first();
   await expect(opportunityNameInput).toBeVisible();
   await opportunityNameInput.fill(testData.nameRequired);
@@ -280,7 +280,7 @@ test.describe('RFP Creation @regression', () => {
   await expect(createRfpButton).toBeEnabled();
   await createRfpButton.click();
 
-  const rfpSuccessDiv = page.locator('div').filter({ hasText: 'Request for Proposal created successfully. Close' }).first();
+  const rfpSuccessDiv = page.locator('div').filter({ hasText: 'Request for Proposal created successfully.' }).first();
   await expect(rfpSuccessDiv).toBeVisible();
   await page.waitForTimeout(2000);
 

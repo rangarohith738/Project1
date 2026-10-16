@@ -204,15 +204,11 @@ test('Verify Prepress Queue Index Filters, Toggle and Search @regression', async
   expect(mineOnTotal).toBeLessThan(unassignedOffTotal);
   expect(mineOnTotal).toBeGreaterThan(0);
 
-  const mineRowCount = await tableRows.count();
-  for (let i = 0; i < mineRowCount; i++) {
-    const assignedText = ((await tableRows.nth(i).locator('td').last().innerText()) || '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
-    if (!assignedText.includes('select user')) {
-      expect(assignedText).toContain(testData.userPicker.toLowerCase());
-    }
+
+  const myneColumnValues = page.locator('//tbody//tr//td[9]');
+  const myneColumnValuesTexts = await myneColumnValues.allTextContents();
+  for (const text of myneColumnValuesTexts) {
+    expect(text.trim().toLowerCase()).toContain(testData.userPicker.toLowerCase());
   }
 
   // --- TC004: Mine ON + Unassigned ON (intersection; may be empty) ---
@@ -298,3 +294,4 @@ test('Verify Prepress Queue Index Filters, Toggle and Search @regression', async
   );
   await expect(requestTitle).toBeVisible();
 });
+ 

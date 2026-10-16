@@ -105,7 +105,7 @@ test('Add Bill To and Ship To @regression @set2', async ({ page }) => {
     await expect(unlinkButton).toBeEnabled();
     await unlinkButton.click();
   }
-
+  await page.waitForTimeout(2000);
   await expect(selectAddressButton).toBeEnabled();
   await selectAddressButton.click();
 
@@ -137,7 +137,7 @@ test('Add Bill To and Ship To @regression @set2', async ({ page }) => {
     await expect(unlinkButtonShipTo).toBeEnabled();
     await unlinkButtonShipTo.click();
   }
-
+  await page.waitForTimeout(2000);
   await expect(selectAddressButtonShipTo).toBeEnabled();
   await selectAddressButtonShipTo.click();
 

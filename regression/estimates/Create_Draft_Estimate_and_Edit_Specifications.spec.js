@@ -120,9 +120,12 @@ const selectCustomerButton = page.getByRole('button', {
   await opportunityQuickSearchInput.click();
 
   const opportunityCell = page.locator("xpath=//div[@id='project-picker-picker-opportunity-picker']//tbody//tr[1]//td[2]");
+  const opportunityNameCell = page.locator("xpath=//div[@id='project-picker-picker-opportunity-picker']//tbody//tr[1]//td[3]");
 
   await expect(opportunityCell).toBeVisible();
   await expect(opportunityCell).toBeEnabled();
+  const opportunityName = (await opportunityNameCell.innerText()).trim();
+  console.log(`[data] opportunityName: ${opportunityName}`);
   await opportunityCell.click();
 
   // Continue after opportunity selection
@@ -132,6 +135,10 @@ const selectCustomerButton = page.getByRole('button', {
   });
 
   await continueButton3.click();
+
+  await expect(chooseOpportunityButton).toBeHidden();
+  const selectedOpportunityButton = page.getByRole('button', { name: opportunityName, exact: true });
+  await expect(selectedOpportunityButton).toBeVisible();
 
   // Estimate quantity unit
   const quantityUnitInput = page.locator("xpath=//input[@name='deliverableItemDTO.extension.quantityUnitId']");
@@ -143,6 +150,7 @@ const selectCustomerButton = page.getByRole('button', {
 
   await expect(metersOption).toBeEnabled();
   await metersOption.click();
+  await expect(quantityUnitInput).toHaveValue('Meters');
 
   // Quantity break 1
   const quantityBreakInput = page.locator("xpath=//input[@name='deliverableItemDTO.extension.quantityBreak1']");
@@ -150,6 +158,7 @@ const selectCustomerButton = page.getByRole('button', {
   await expect(quantityBreakInput).toBeEnabled();
 await quantityBreakInput.click();
 await quantityBreakInput.fill(testData.quantityBreak1);
+await expect(quantityBreakInput).toHaveValue(testData.quantityBreak1);
 
 // Max colors to quote
 const maxColorsInput = page.locator("xpath=//input[@name='deliverableItemDTO.extension.maxColorsToQuote']");
@@ -161,6 +170,7 @@ const colorsOption = page.locator('li[data-label="2"]');
 
 await expect(colorsOption).toBeEnabled();
 await colorsOption.click();
+await expect(maxColorsInput).toHaveValue('2');
 
 // Product class
 const productClassInput = page.locator("xpath=//input[@name='deliverableItemDTO.productClassId']");
@@ -190,6 +200,7 @@ const standardDigitalLabelOption = page.locator(
 
 await expect(standardDigitalLabelOption).toBeEnabled();
 await standardDigitalLabelOption.click();
+await expect(workflowInput).toHaveValue('Standard Digital Label');
 
 // Plant
 const plantInput = page.locator("xpath=//input[@name='deliverableItemSpecification.plantId']");
@@ -203,11 +214,13 @@ const fortisOption = page.locator(
 
 await expect(fortisOption).toBeEnabled();
 await fortisOption.click();
+await expect(plantInput).toHaveValue('Fortis (99)');
 
 // Description
 const descriptionInput = page.locator("xpath=//textarea[@id='deliverableItemDTO.description']");
 
 await descriptionInput.fill(testData.descriptionRequired);
+await expect(descriptionInput).toHaveValue(testData.descriptionRequired);
 
 // Unit set
 const unitSetInput = page.locator("xpath=//input[@name='deliverableItemSpecification.unitSetTypeId']");
@@ -221,6 +234,7 @@ const rollsBoxedOption = page.locator(
 
 await expect(rollsBoxedOption).toBeEnabled();
 await rollsBoxedOption.click();
+await expect(unitSetInput).toHaveValue('Rolls/Boxed');
 
 // Core diameter
 const coreDiameterInput = page.locator("xpath=//input[@name='deliverableItemSpecification.coreDiameterId']");
@@ -233,6 +247,7 @@ const coreDiameterOption = page.locator(
 );
 
 await coreDiameterOption.click();
+await expect(coreDiameterInput).toHaveValue('1');
 
 // Application type
 const applicationTypeInput = page.locator("xpath=//input[@name='deliverableItemSpecification.applicationType']");
@@ -244,12 +259,14 @@ const handOption = page.locator('li[data-label="Hand"]');
 
 await expect(handOption).toBeEnabled();
 await handOption.click();
+await expect(applicationTypeInput).toHaveValue('Hand');
 
 // Application temp
 const applicationTempInput = page.locator("xpath=//input[@name='deliverableItemSpecification.applicationTemp']");
 
 await expect(applicationTempInput).toBeEditable();
 await applicationTempInput.fill(testData.applicationTempRequired);
+await expect(applicationTempInput).toHaveValue(testData.applicationTempRequired);
 
 // Surface type
 const surfaceTypeInput = page.locator("xpath=//input[@name='deliverableItemSpecification.applicationSurfaceTypeValuelistOptionId']");
@@ -261,36 +278,42 @@ const petgOption = page.locator('li[data-label="PETg"]');
 
 await expect(petgOption).toBeEnabled();
 await petgOption.click();
+await expect(surfaceTypeInput).toHaveValue('PETg');
 
 // Surface temp after application
 const surfaceTempAfterInput = page.locator("xpath=//input[@name='deliverableItemSpecification.surfaceTempAfterApplication']");
 
 await expect(surfaceTempAfterInput).toBeEditable();
 await surfaceTempAfterInput.fill(testData.surfaceTempAfter);
+await expect(surfaceTempAfterInput).toHaveValue(testData.surfaceTempAfter);
 
 // Appearance color
 const appearanceColorInput = page.locator("xpath=//input[@name='deliverableItemSpecification.substrateColor']");
 
 await expect(appearanceColorInput).toBeEditable();
 await appearanceColorInput.fill(testData.appearanceColorRequired);
+await expect(appearanceColorInput).toHaveValue(testData.appearanceColorRequired);
 
 // Substrate face/facestock
 const substrateFaceInput = page.locator("xpath=//input[@name='deliverableItemSpecification.substrateFace']");
 
 await expect(substrateFaceInput).toBeEditable();
 await substrateFaceInput.fill(testData.substrateFaceOrFacestock);
+await expect(substrateFaceInput).toHaveValue(testData.substrateFaceOrFacestock);
 
 // Adhesive
 const adhesiveInput = page.locator("xpath=//input[@name='deliverableItemSpecification.substrateAdhesive']");
 
 await expect(adhesiveInput).toBeEditable();
 await adhesiveInput.fill(testData.adhesiveRequired);
+await expect(adhesiveInput).toHaveValue(testData.adhesiveRequired);
 
 // Liner
 const linerInput = page.locator("xpath=//input[@name='deliverableItemSpecification.substrateLiner']");
 
 await expect(linerInput).toBeEditable();
 await linerInput.fill(testData.linerRequired);
+await expect(linerInput).toHaveValue(testData.linerRequired);
 
 const coating= page.locator("xpath=//input[@name='deliverableItemSpecification.coatingTypeValuelistOptionId']");
 await expect(coating).toBeEnabled();
@@ -350,6 +373,9 @@ const continueButton4 = page.locator(
 );
 await page.waitForTimeout(3000);
 await continueButton4.click();
+await expect(unitTemplatePickerHeading).toBeHidden();
+const selectedUnitTemplateButton = page.getByRole('button', { name: new RegExp(testData.unitTemplatePicker) });
+await expect(selectedUnitTemplateButton).toBeVisible();
 
 const chooseMaterialItemButton = page.getByRole('button', { name: 'Choose Material Item', exact: true }).first();
   await expect(chooseMaterialItemButton).toBeEnabled();
@@ -398,50 +424,72 @@ const chooseMaterialItemButton = page.getByRole('button', { name: 'Choose Materi
     await continueButton_finsh.click();
 
     // --- Select Rewinder/Slitter ---
-    const rewinderSlitterInput = page.locator("xpath=//input[@placeholder='Select a Rewinder/Slitter Class']");
+    const rewinderSection = page.locator('form').filter({ hasText: 'Select a Rewinder/Slitter Class' });
+    const rewinderSlitterInput = rewinderSection.locator('input[name="deliverableItemWorkflowStep.work_center_class_id"]');
+    await expect(rewinderSlitterInput).toBeVisible();
     await rewinderSlitterInput.click();
 
     const rewinderOption = page.locator('li[data-label="Rewinder"]');
     await expect(rewinderOption).toBeVisible();
     await expect(rewinderOption).toBeEnabled();
     await rewinderOption.click();
+    await expect(rewinderSlitterInput).toHaveValue('Rewinder');
 
       // --- Enter number of slits ---
     const numberOfSlitsInput = page.locator("xpath=//input[@name='deliverableItemWorkflowStepTool.numberOfSlits']");
     await expect(numberOfSlitsInput).toBeVisible();
     await expect(numberOfSlitsInput).toBeEditable();
     await numberOfSlitsInput.fill(testData.numberOfSlits);
+    await expect(numberOfSlitsInput).toHaveValue(testData.numberOfSlits);
 
      // --- Select Sheeter ---
-    const sheeterInput = page.locator("xpath=//input[@placeholder='Select a Sheeter Class']");
+    const sheeterSection = page.locator('form').filter({ hasText: 'Select a Sheeter Class' });
+    const sheeterInput = sheeterSection.locator('input[name="deliverableItemWorkflowStep.work_center_class_id"]');
+    await expect(sheeterInput).toBeVisible();
     await sheeterInput.click();
 
     const paperCutterOption = page.locator('li[data-label="Paper Cutter"]');
     await paperCutterOption.click();
+    await expect(sheeterInput).toHaveValue('Paper Cutter');
 
     // --- Enter step across (imposition across) ---
     const numberAcrossStepInput = page.locator("xpath=//input[@name='deliverableItemSpecification.impositionAc']");
     await expect(numberAcrossStepInput).toBeVisible();
     await numberAcrossStepInput.click();
     await numberAcrossStepInput.fill(testData.numberAcrossStep);
+    await expect(numberAcrossStepInput).toHaveValue(testData.numberAcrossStep);
 
       // --- Enter repeat around (imposition around) ---
       const numberAroundRepeatInput = page.locator("xpath=//input[@name='deliverableItemSpecification.impositionAr']");
       await expect(numberAroundRepeatInput).toBeVisible();
       await numberAroundRepeatInput.click();
       await numberAroundRepeatInput.fill(testData.numberAroundRepeat);
+      await expect(numberAroundRepeatInput).toHaveValue(testData.numberAroundRepeat);
 
       // --- Enter tooth count ---
       const toothCountInput = page.locator("//input[@name='deliverableItemSpecification.toothCount']");
       await expect(toothCountInput).toBeVisible();
       await toothCountInput.click();
       await toothCountInput.fill(testData.toothCount);
+      await expect(toothCountInput).toHaveValue(testData.toothCount);
 
       const coatingMaterialsCheckbox = page.locator(
         '#inknotrequired-inknotrequired-not-required'
       );
       await coatingMaterialsCheckbox.check();
       await expect(coatingMaterialsCheckbox).toBeChecked();
+
+  // Pre-submit gate: re-assert volatile fields before Create
+  await expect(quantityBreakInput).toHaveValue(testData.quantityBreak1);
+  await expect(maxColorsInput).toHaveValue('2');
+  await expect(productClassInput).toHaveValue('Prime Label');
+  await expect(workflowInput).toHaveValue('Standard Digital Label');
+  await expect(plantInput).toHaveValue('Fortis (99)');
+  await expect(surfaceTempAfterInput).toHaveValue(testData.surfaceTempAfter);
+  await expect(selectedUnitTemplateButton).toBeVisible();
+  await expect(numberAcrossStepInput).toHaveValue(testData.numberAcrossStep);
+  await expect(numberAroundRepeatInput).toHaveValue(testData.numberAroundRepeat);
+  await expect(toothCountInput).toHaveValue(testData.toothCount);
 
       const createDraftEstimateButton = page.getByRole('button', { name: 'Create Draft Estimate', exact: true });
       await expect(createDraftEstimateButton).toBeEnabled();

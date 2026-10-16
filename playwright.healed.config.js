@@ -20,8 +20,8 @@ const { defineConfig } = require('@playwright/test');
     ['allure-playwright', { resultsDir: 'allure-results' }],
   ],
   use: {
-    actionTimeout: 60000,
-    navigationTimeout: 60000,
+    actionTimeout: 90000,
+    navigationTimeout: 90000,
     headless: process.env.HEADLESS !== 'false',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

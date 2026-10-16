@@ -56,7 +56,7 @@ test('Verify RFP Requested to In Progress @regression @set1', async ({ page }) =
   await rfpQueueLabel.click();
 
   await page.waitForLoadState('domcontentloaded');
-
+  await page.waitForTimeout(2000);
   const loggedInUserName = (
     await page.locator('#user-menu-button .font-semibold').first().innerText()
   ).trim();

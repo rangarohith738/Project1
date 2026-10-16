@@ -44,30 +44,61 @@ test('Validate add link and remove Opportunity contacts @regression @set1', asyn
   await opportunitiesLink.click();
   await page.waitForLoadState('domcontentloaded');
 
-  const mineFilter = page.locator('//span[normalize-space()="Mine"]//following::button[1]');
-  await expect(mineFilter).toBeVisible();
-  await mineFilter.click();
-  await page.waitForTimeout(2000);
+  // Create a fresh opportunity so Contacts mirror the customer (reused opps drift)
+  const newOpportunityButton = page.getByRole('button', { name: 'New Opportunity', exact: true });
+  await expect(newOpportunityButton).toBeEnabled();
+  await newOpportunityButton.click();
 
-  const quickSearchInput = page.getByPlaceholder('Quick Search').first();
-  await expect(quickSearchInput).toBeVisible();
-  await expect(quickSearchInput).toBeEditable();
-  await quickSearchInput.fill(testData.quickSearch);
-  await page.waitForTimeout(2000);
+  const nameRequiredInput = page.locator('input[name="project.name"][type="text"]');
+  await expect(nameRequiredInput).toBeVisible();
+  await expect(nameRequiredInput).toBeEditable();
+  await nameRequiredInput.fill(session.opportunityName);
 
-  const opportunityRow = page.locator('//tbody//tr[1]');
-  await expect(opportunityRow).toBeVisible();
-  await expect(opportunityRow).toContainText(testData.customerName);
+  const selectCustomerButton = page.getByRole('button', { name: 'Select Customer', exact: true });
+  await expect(selectCustomerButton).toBeEnabled();
+  await selectCustomerButton.click();
 
-  const oppCell = page.locator('//tbody//tr[1]//td[2]');
-  await expect(oppCell).toBeVisible();
-  const opportunityNumber = (await oppCell.innerText()).trim();
-  console.log(`[data] opportunityNumber: ${opportunityNumber}`);
-  await oppCell.click();
-  await page.waitForTimeout(2000);
+  const customerQuickSearchInput = page.locator("//span[normalize-space()='Customer Only']/ancestor::div[3]//input[@placeholder='Quick Search']");
+  await page.waitForLoadState('domcontentloaded');
+  await customerQuickSearchInput.fill(testData.quickSearch);
 
-  const oppHeading = page.locator('div').filter({ hasText: `${opportunityNumber} - Opportunity` }).first();
+  const customerCell = page.locator('td').filter({ hasText: testData.quickSearch }).first();
+  await expect(customerCell).toBeVisible();
+  await expect(customerCell).toBeEnabled();
+  await page.waitForTimeout(4000);
+  await customerCell.click();
+
+  const unlinkButton = page.getByRole('button', { name: 'Unlink', exact: true });
+  await expect(unlinkButton).toBeVisible();
+
+  const continueCustomerPickerButton = page.getByRole('button', { name: 'Continue', exact: true }).first();
+  await expect(continueCustomerPickerButton).toBeEnabled();
+  await continueCustomerPickerButton.click();
+
+  const selectedCustomerButton = page.getByRole('button', { name: testData.customerName, exact: true });
+  await expect(selectedCustomerButton).toBeVisible();
+
+  const continueButton = page.getByRole('button', { name: 'Continue', exact: true });
+  await expect(continueButton).toBeEnabled();
+  await continueButton.click();
+
+  const createOpportunityButton = page.getByRole('button', { name: 'Yes, add record', exact: true });
+  await expect(createOpportunityButton).toBeEnabled();
+  await createOpportunityButton.click();
+  await page.waitForLoadState('domcontentloaded');
+
+  if (!/\/projects\/\d+/.test(page.url())) {
+    const createdOpportunityRow = page.getByText(session.opportunityName, { exact: true }).first();
+    await expect(createdOpportunityRow).toBeVisible();
+    await createdOpportunityRow.click();
+    await page.waitForLoadState('domcontentloaded');
+  }
+
+  const oppHeading = page.locator('div').filter({ hasText: /OPP\d+ - Opportunity/ }).first();
   await expect(oppHeading).toBeVisible();
+  const opportunityNumber = ((await oppHeading.textContent() || '').match(/(OPP\d+)\s*- Opportunity/) || [])[1] || '';
+  console.log(`[data] opportunityNumber: ${opportunityNumber}`);
+  console.log(`[data] opportunityName: ${session.opportunityName}`);
 
   const customerLead = page.locator('//div[normalize-space()="Customer/Lead"]/following-sibling::div').first();
   await expect(customerLead).toBeVisible();

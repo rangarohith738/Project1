@@ -160,7 +160,7 @@ test('Verify RFP in Product Item and RFP Hub @regression @set2', async ({ page }
       await expect(projectRadio).toBeVisible();
       await projectRadio.check();
       await expect(projectRadio).toBeChecked();
-
+      await newRfpPage.waitForTimeout(2000);
       const opportunityNameInput = newRfpPage.locator('//input[@placeholder="Enter the opportunity name"]').first();
       await expect(opportunityNameInput).toBeVisible();
       await opportunityNameInput.fill(testData.nameRequired);
